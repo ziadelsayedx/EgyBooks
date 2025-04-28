@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap"
+      rel="stylesheet" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="../20230365_Project4_DoaaGhaleb_Phase2/Style/Images/Logo.png" />
+    <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
+    <link rel="stylesheet" href="Style/Header.css" />
+    <link rel="stylesheet" href="Style/MyBooks.css" />
+    <title>My Books</title>
+  </head>
+  <body>
+    <section class="head">
+      <img id="Logo" src="Style/Images/logo.png" alt="Logo" class="logo" />
+      <h1 id="EgyBooks"><a href="home_page.html">EgyBooks</a></h1>
+      <div class="HeadButtons">
+        <div class="cart-container">
+          <button id="cart-btn">
+            <a href="cart.html">🛒 Cart</a>
+          </button>
+        </div>
+        <button><a href="home_page.html">Home</a></button>
+        <button><a href="library.html">Library</a></button>
+        <button>My Books</button>
+        
+        <button><a href="Profile.html">Profile</a></button>
+        <button id="Logout"><a href="Login.html">Log Out</a></button>
+      </div>
+    </section>
+    <div class="main-content">
+      <h2 class="page-title">My Books Collection</h2>
+      <div class="books-container" id="booksContainer"></div>
+    </div>
+
+    <div id="returnModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-icon">
+          <span class="question-mark">?</span>
+        </div>
+        <h2 class="modal-title">Return Book</h2>
+        <p class="modal-message">Are you sure you want to return this book?</p>
+        <div class="modal-buttons">
+          <button class="modal-button confirm-btn">Yes</button>
+          <button class="modal-button cancel-btn">No</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="Script/MyBooks.js"></script>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
+    <link rel="stylesheet" href="Style/header.css">
+    <link rel="stylesheet" href="Style/Profile.css">
+    
+    <title>Profile Page</title>
+</head>
+<body>
+    <section class="head">
+        <img id="Logo" src="Style/Images/logo.png" alt="Logo" class="logo">
+        <h1 id="EgyBooks">EgyBooks</h1>
+        <div class="HeadButtons">
+            <button><a href="home_page.html">Home</a></button> 
+            <button><a href="library.html">Library</a></button> 
+            <button><a href="MyBooks.html">My Books</a></button>
+            <button>Profile</button> 
+            <button id="Logout"><a href="Login.html">Log Out</a></button>
+        </div>
+    </section>
+
+    <div class="main-content">
+        <section class="ProfileInfo">
+            <h2 id="ProfHDR">MY PROFILE</h2>
+
+            <div class="ProfileLayout">
+                <img id="PFP" src="Style/Images/Profile.webp" alt="Profile Picture">
+                <div class="UserInfo">
+                    <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+                    <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
+                    <p><strong>Member Since:</strong> <span id="profileMemberSince">Loading...</span></p>
+                    <p><strong>Books Borrowed:</strong> <span id="profileBooksBorrowed">0</span></p>
+                </div>
+            </div>
+
+            <button id="editBtn">Edit Profile</button>
+
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeModal">&times;</span>
+                    <form class="edit-form" id="editForm" action="#" method="post">
+                        <h3>Edit Your Profile</h3>
+
+                        <label for="name">Name:</label>
+                        <input type="text" id="editName" name="name" required>
+
+                        <label for="email">Email:</label>
+                        <input type="email" id="editEmail" name="email" required>
+
+                        <label for="username">Username:</label>
+                        <input type="text" id="editUsername" name="username" required>
+
+                        <label for="password">Password:</label>
+                        <input type="password" id="editPassword" name="password" placeholder="Enter new password">
+
+                        <div class="edit-buttons">
+                            <input type="submit" value="Save Changes" class="save-btn">
+                            <input type="button" value="Cancel" class="cancel-btn" id="cancelBtn">
+                        </div>
+                    </form>
+                </div>
+            </div>  
+        </section>
+    </div>
+
+    
+    <script src="Script/profile.js"></script>
+</body>
+</html>

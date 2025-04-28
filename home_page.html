@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
+  <link rel="stylesheet" href="Style/home_page.css" />
+  <link rel="stylesheet" href="Style/header.css" />
+
+  <script src="Script/cart.js"></script>
+  <script src="Script/home_page.js"></script>
+  <title>Home</title>
+</head>
+<body>
+  <section class="head">
+    <img id="Logo" src="Style/Images/Logo.png" alt="Logo" class="logo" />
+    <h1 id="EgyBooks"><a href="home_page.html">EgyBooks</a></h1>
+    <div class="HeadButtons">
+      <div class="cart-container">
+        <button id="cart-btn">
+          <a href="cart.html">🛒 Cart (<span id="cart-count">0</span>)</a>
+        </button>
+      </div>
+      <button>Home</button>
+      <button><a href="library.html">Library</a></button>
+      <button><a href="MyBooks.html">My Books</a></button>
+      <button><a href="Profile.html">Profile</a></button>
+      <button id="Logout"><a href="Login.html">Log Out</a></button>
+    </div>
+  </section>
+  
+  <div class="main-content">
+    <section class="search-section">
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search all books..." />
+        <button id="search-button">Search</button>
+      </div>
+    </section>
+
+    <section class="book-section">
+      <div class="book-category">
+        <h2>Popular Books</h2>
+        <div class="book-slider-container" id="popular-books-slider">
+          <button class="slider-arrow left-arrow">&#10094;</button>
+          <div class="book-slider">
+            <div class="book-grid" id="popular-books-grid">
+            </div>
+          </div>
+          <button class="slider-arrow right-arrow">&#10095;</button>
+        </div>
+      </div>
+
+      <div class="book-category">
+        <h2>Trending Books</h2>
+        <div class="book-slider-container" id="trending-books-slider">
+          <button class="slider-arrow left-arrow">&#10094;</button>
+          <div class="book-slider">
+            <div class="book-grid" id="trending-books-grid">
+            </div>
+          </div>
+          <button class="slider-arrow right-arrow">&#10095;</button>
+        </div>
+      </div>
+
+      <div class="book-category">
+        <h2>New Releases</h2>
+        <div class="book-slider-container" id="new-books-slider">
+          <button class="slider-arrow left-arrow">&#10094;</button>
+          <div class="book-slider">
+            <div class="book-grid" id="new-books-grid">
+            </div>
+          </div>
+          <button class="slider-arrow right-arrow">&#10095;</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

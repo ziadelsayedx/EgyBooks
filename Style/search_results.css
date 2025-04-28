@@ -1,0 +1,113 @@
+.main-content {
+  background-image: url('Images/BackgroundLibrary.avif'); 
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 30px; 
+  height: 120vh; 
+}
+
+
+.main-inner {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+
+.page-title {
+  font-size: 30px;
+  color: #5A2A2A;
+  margin-bottom: 10px;
+  text-align: center;
+  font-family: "Anton SC", sans-serif;
+}
+
+.search-info {
+  text-align: center;
+  margin-bottom: 27px;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.no-results {
+  text-align: center;
+  grid-column: 1 / -1;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 40px 0;
+}
+
+.book-card {
+  background-color: #f9f9f9;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  text-align: center;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  background-color: #dfdfdf;
+}
+
+.book-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.book-card h3 {
+  font-size: 18px;
+  margin: 10px 0 5px;
+  color: #333;
+}
+
+.book-card p {
+  font-size: 14px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.book-card .add-cart-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.book-card .add-cart-btn:hover {
+  background-color: #555;
+}
+
+.book-card .view-book-details {
+  display: inline-block;
+  margin: 10px auto;
+  padding: 8px 16px;
+  background-color: #5A2A2A;
+  text-decoration: none;
+  color: white;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.book-card .view-book-details:hover {
+  background-color: #8b4a4a;
+}
