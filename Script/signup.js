@@ -34,17 +34,14 @@ function validateForm() {
   const passwordInput = document.getElementsByName("password")[0];
   const confirmPasswordInput = document.getElementsByName("confirm password")[0];
 
-
   const username = usernameInput.value.trim();
   const email = emailInput.value.trim().toLowerCase();
   const phone = phoneInput.value.trim();
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
 
-
   clearError();
   [usernameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput].forEach(clearRedBorder);
-
 
   if (!username) {
     addRedBorder(usernameInput);
@@ -58,15 +55,38 @@ function validateForm() {
     return false;
   }
 
-
+  // check if username or email already exists
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key.toLowerCase() === username.toLowerCase()) {
-      addRedBorder(usernameInput);
-      showError("Username already exists. Please choose a different one.");
-      return false;
+  
+    if (key === "CurrentUser") continue;
+  
+    try {
+      const userData = JSON.parse(localStorage.getItem(key));
+      if (!userData || typeof userData !== "object" || !userData.email) continue;
+  
+      // Check for username duplication (key itself)
+      if (key.toLowerCase() === username.toLowerCase()) {
+        addRedBorder(usernameInput);
+        showError("Username already exists. Please choose a different one.");
+        return false;
+      }
+  
+      // Check for email duplication
+      if (userData.email.toLowerCase() === email.toLowerCase()) {
+        addRedBorder(emailInput);
+        showError("Email already registered. Please use a different email.");
+        return false;
+      }
+  
+    } catch (e) {
+      console.warn("Skipping bad entry in localStorage:", key);
+      continue;
     }
   }
+  
+  
+  
 
   if (!email) {
     addRedBorder(emailInput);
@@ -79,6 +99,7 @@ function validateForm() {
     showError("Please enter a valid email address.");
     return false;
   }
+
   if (!phone) {
     addRedBorder(phoneInput);
     showError("Phone number is required.");
@@ -91,7 +112,6 @@ function validateForm() {
     return false;
   }
 
-
   if (!password) {
     addRedBorder(passwordInput);
     showError("Password is required.");
@@ -103,6 +123,7 @@ function validateForm() {
     showError("Password must be at least 8 characters.");
     return false;
   }
+
   if (password !== confirmPassword) {
     addRedBorder(passwordInput);
     addRedBorder(confirmPasswordInput);
@@ -110,10 +131,11 @@ function validateForm() {
     return false;
   }
 
-
+  // all validations passed
   saveUser(username, email, phone, password);
   return true;
 }
+
 
 
 function saveUser(username, email, phone, password) {
@@ -148,8 +170,12 @@ function saveUser(username, email, phone, password) {
 
 document.getElementById("AddBookButton").addEventListener("click", function (e) {
   e.preventDefault();
-  validateForm();
+  const isValid = validateForm();
+  if (isValid) {
+    // saveUser is already called inside validateForm
+  }
 });
+
 
 
 function clearAllUsers() {
@@ -160,6 +186,10 @@ function clearAllUsers() {
       keysToRemove.push(key);
     }
   }
+  keysToRemove.forEach((key) => localStorage.removeItem(key));
+  localStorage.removeItem("CurrentUser");
+  console.log("Cleared all user data");
+}
   keysToRemove.forEach((key) => localStorage.removeItem(key));
   localStorage.removeItem("CurrentUser");
   console.log("Cleared all user data");
