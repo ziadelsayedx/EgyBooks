@@ -190,7 +190,3 @@ function clearAllUsers() {
   localStorage.removeItem("CurrentUser");
   console.log("Cleared all user data");
 }
-  keysToRemove.forEach((key) => localStorage.removeItem(key));
-  localStorage.removeItem("CurrentUser");
-  console.log("Cleared all user data");
-}
