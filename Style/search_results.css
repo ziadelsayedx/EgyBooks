@@ -111,3 +111,62 @@
 .book-card .view-book-details:hover {
   background-color: #8b4a4a;
 }
+
+.sort-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+#sort-btn {
+  padding: 8px 16px;
+  background-color: #5A2A2A;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+#sort-btn:hover {
+  background-color: #7a3c3c;
+}
+
+.sort-options {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sort-options button {
+  color: #5A2A2A;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.sort-options button:hover {
+  background-color: #f1f1f1;
+}
+
+.sort-container:hover .sort-options {
+  display: block;
+}
+
+.sort-options.show {
+  display: block;
+}
