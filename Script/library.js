@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const alreadyOkButton = document.getElementById('alreadyOkButton');
     const booksColumn = document.querySelector(".books-column");
 
+    // Admin: Add "Add Book" button dynamically
     if (isAdmin && booksColumn) {
         const addBookBtn = document.createElement('button');
         addBookBtn.className = 'add-book-btn';
@@ -16,38 +17,47 @@ document.addEventListener("DOMContentLoaded", function () {
         booksColumn.insertBefore(addBookBtn, booksGrid);
     }
 
+    // Close modals when OK buttons are clicked
     if (okButton) okButton.addEventListener('click', () => successModal.style.display = 'none');
     if (alreadyOkButton) alreadyOkButton.addEventListener('click', () => alreadyModal.style.display = 'none');
 
+    // Display books with optional genre filtering
     function displayBooks(selectedGenre = 'all') {
         booksGrid.innerHTML = '';
-
         const books = JSON.parse(localStorage.getItem("books")) || [];
+
+        const normalized = str => (str || '').toLowerCase().replace(/\s+/g, '');
 
         const filteredBooks = selectedGenre === 'all'
             ? books
-            : books.filter(book => {
-                const bookGenre = (book.genre || '').toLowerCase().replace(/\s+/g, '');
-                const selected = selectedGenre.toLowerCase().replace(/\s+/g, '');
-                return bookGenre === selected;
-            });
+            : books.filter(book => normalized(book.genre) === normalized(selectedGenre));
 
         if (filteredBooks.length === 0) {
             booksGrid.innerHTML = `<p style="text-align:center;">No books found in this genre.</p>`;
             return;
         }
 
+        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        const cartIds = cartItems.map(item => item.id);
+
         filteredBooks.forEach(book => {
             const card = document.createElement("div");
             card.className = "book-card";
+
+            const bookId = book.title.replace(/\s+/g, '-').toLowerCase();
+            const isInCart = cartIds.includes(bookId);
+
             card.innerHTML = `
+                ${isAdmin ? `<button class="delete-btn" data-id="${book.title}">X</button>` : ''}
                 <img src="${book.image}" class="book-image" alt="Book Cover">
                 <div class="book-info">
                     <div class="book-title">${book.title}</div>
                     <div class="book-actions">
                         <button class="view-btn" data-id="${book.title}">View</button>
-                        <button class="borrow-btn" data-id="${book.title}">Add To Cart</button>
-                        ${isAdmin ? `<button class="delete-btn" data-id="${book.title}">Delete</button>` : ''}
+                        <button class="borrow-btn" data-id="${book.title}" ${isInCart ? 'disabled style="background-color: #95a5a6; cursor: not-allowed;"' : ''}>
+                            ${isInCart ? 'Added to Cart' : 'Add To Cart'}
+                        </button>
+                        ${isAdmin ? `<button class="edit-btn" data-id="${book.title}">Edit</button>` : ''}
                     </div>
                 </div>
             `;
@@ -55,7 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Initialize books display
     displayBooks();
+
+    // Handle genre switching
     genreItems.forEach(item => {
         item.addEventListener('click', function () {
             genreItems.forEach(i => i.classList.remove('active'));
@@ -65,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Handle all book-related button clicks (view, delete, borrow, edit)
     booksGrid.addEventListener("click", function (e) {
         const bookId = e.target.getAttribute("data-id");
         if (!bookId) return;
@@ -74,12 +88,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const book = books[bookIndex];
         if (!book) return;
 
+        // DELETE
         if (e.target.classList.contains("delete-btn")) {
             books.splice(bookIndex, 1);
             localStorage.setItem("books", JSON.stringify(books));
             location.reload();
+            return;
         }
 
+        // VIEW
         if (e.target.classList.contains("view-btn")) {
             const viewedBook = {
                 title: book.title || "",
@@ -93,46 +110,40 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             localStorage.setItem("ViewedBook", JSON.stringify(viewedBook));
             window.location.href = "ViewBook.html";
+            return;
         }
 
+        // ADD TO CART
         if (e.target.classList.contains("borrow-btn")) {
-            const cartData = JSON.parse(localStorage.getItem('cartItems')) || [];
-
-            const cart = {
-                items: cartData,
-                save() {
-                    localStorage.setItem('cartItems', JSON.stringify(this.items));
-                },
-                addItem(book) {
-                    this.items.push(book);
-                    this.save();
-                }
-            };
-
-            const cartBookId = book.title.replace(/\s+/g, '-').toLowerCase();
-            const alreadyInCart = cart.items.find(item => item.id === cartBookId);
-
+            const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+        
+            const alreadyInCart = cartItems.find(item => item.title === book.title);
+        
             if (alreadyInCart) {
                 if (alreadyModal) alreadyModal.style.display = 'flex';
                 return;
             }
-
-            const borrowedBook = {
-                title: book.title.replace(/<br>/g, ' ').trim(),
-                author: book.author || '',
-                image: book.image,
-                stock: parseInt(book.stock) || 1,
-                price: parseFloat(typeof book.price === 'string' ? book.price.replace('$', '') : book.price) || 10,
-                id: cartBookId,
+        
+            const cartItem = {
+                title: book.title,
+                author: book.author || "Unknown",
+                image: book.image || "Style/Images/default-book.jpg",
+                price: parseFloat(book.price) || 0,
+                quantity: 1,
+                actionType: "purchase",
+                selected: true
             };
-
-            cart.addItem(borrowedBook);
+        
+            cartItems.push(cartItem);
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        
             e.target.textContent = "Added to Cart";
             e.target.disabled = true;
             e.target.style.backgroundColor = "#95a5a6";
             e.target.style.cursor = "not-allowed";
-
+        
             if (successModal) successModal.style.display = 'flex';
         }
+          
     });
 });
