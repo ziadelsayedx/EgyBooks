@@ -1,0 +1,255 @@
+body {
+  display: block;
+  margin: 8px;
+}
+
+.book-section {
+  text-align: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+}
+
+.book-section h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.book-card {
+  background-color: #f9f9f9;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  background-color: #dfdfdf;
+}
+
+.book-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.book-card h3 {
+  font-size: 18px;
+  margin: 10px 0 5px;
+  text-align: center;
+  color: #333;
+}
+
+.book-card p {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.book-card .add-cart-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.book-card .add-cart-btn:hover {
+  background-color: #555;
+}
+
+.book-card .view-book-details {
+  display: inline;
+  margin: 10px auto;
+  padding: 8px 16px;
+  background-color: #5a2a2a;
+  text-decoration: none;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.book-card .view-book-details:hover {
+  background-color: #8b4a4a;
+}
+
+.book-category {
+  margin-bottom: 40px;
+}
+
+.book-category h2 {
+  font-size: 28px;
+  font-family: 'Anton SC', sans-serif;
+  color: #5a2a2a;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #5a2a2a;
+}
+
+.book-slider-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.book-slider {
+  display: flex;
+  transition: transform 0.5s ease;
+  width: 100%;
+}
+
+.book-grid {
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 0 10px;
+  min-width: 0;
+}
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 72px;
+  background-color: rgba(90, 42, 42, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0.8;
+}
+
+.slider-arrow:hover {
+  background-color: #5a2a2a;
+  opacity: 1;
+}
+
+.left-arrow {
+  left: 0;
+}
+
+.right-arrow {
+  right: 0;
+}
+
+.book-slider-container.no-left-arrow .left-arrow {
+  display: none;
+}
+
+.book-slider-container.no-right-arrow .right-arrow {
+  display: none;
+}
+
+.book-card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.search-section {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+#search-input {
+  padding: 10px 15px;
+  border: 1px solid #5A2A2A;
+  border-radius: 5px;
+  font-size: 16px;
+  width: 60%;
+}
+
+#search-button, #show-all-books {
+  padding: 10px 20px;
+  background-color: #5A2A2A;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+#search-button:hover, #show-all-books:hover {
+  background-color: #7a3c3c;
+}
+
+.cart-container {
+  position: relative;
+  display: inline-block;
+}
+
+.welcome-section {
+  text-align: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+}
+
+.welcome-section h1 {
+  font-size: 28px;
+  color: #5A2A2A;
+  margin: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.book-card-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.book-card .add-cart-btn,
+.book-card .view-book-details {
+  flex: 1;
+  margin: 0;
+}
