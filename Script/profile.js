@@ -9,15 +9,9 @@ window.onload = function () {
 
     function countBorrowedBooks() {
         const libraryBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
-        let count = 0;
-        
-        libraryBooks.forEach(book => {
-            if (book.borrowedBy && book.borrowedBy === userData.username) {
-                count++;
-            }
-        });
-        
-        return count;
+        return libraryBooks.filter(book => 
+            book.userId === userData.username && book.type === "borrow"
+        ).length;
     }
 
     function updateProfileDisplay() {

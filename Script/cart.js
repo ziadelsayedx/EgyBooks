@@ -211,14 +211,13 @@ const cart = {
     );
 
     if (window.location.pathname.includes("Profile.html")) {
-      const allBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
-      const borrowedBooksCount = allBooks.filter(book => 
+      const borrowedCount = libraryBooks.filter(book => 
         book.userId === currentUser.username && book.type === "borrow"
       ).length;
       
       const borrowedCountElement = document.querySelector(".UserInfo p:nth-of-type(5)");
       if (borrowedCountElement) {
-        borrowedCountElement.innerHTML = `<strong>Books Borrowed:</strong> ${borrowedBooksCount}`;
+        borrowedCountElement.innerHTML = `<strong>Books Borrowed:</strong> ${borrowedCount}`;
       }
     }
   },

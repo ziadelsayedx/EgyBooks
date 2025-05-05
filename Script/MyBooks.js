@@ -89,11 +89,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const bookIndex = allBooks.findIndex((book) => book.id === bookId);
 
     if (bookIndex !== -1) {
-      allBooks.splice(bookIndex, 1);
-      localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
-      renderBooks();
+        allBooks.splice(bookIndex, 1);
+        localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
+        renderBooks();
+        
+        if (window.location.pathname.includes("Profile.html")) {
+            updateProfileBooksCount();
+        }
     }
-  }
+}
+
+function updateProfileBooksCount() {
+    const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
+    if (!currentUser) return;
+    
+    const borrowedCount = JSON.parse(localStorage.getItem("libraryBooks")) || []
+        .filter(book => book.userId === currentUser.username && book.type === "borrow")
+        .length;
+    
+    const borrowedCountElement = document.querySelector(".UserInfo p:nth-of-type(5)");
+    if (borrowedCountElement) {
+        borrowedCountElement.innerHTML = `<strong>Books Borrowed:</strong> ${borrowedCount}`;
+    }
+}
 
   function showReturnConfirmation(bookId) {
     const modal = document.getElementById("returnModal");
