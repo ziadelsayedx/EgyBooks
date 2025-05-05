@@ -1,0 +1,137 @@
+.background-section {
+    background-image: url('Images/BACK\ GROUND.jpeg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center; 
+    padding: 20px; 
+    height: auto;
+}
+
+
+.BookDetails {
+    text-align: center;
+    background-size: cover;
+    background-repeat: no-repeat; 
+    background-position: center; 
+    padding: 20px; 
+    height: auto;
+    color: #333; 
+}
+
+.form-container {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px; 
+    border-radius: 8px; 
+}
+
+.main-content {
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 30px; 
+    height: 100vh; 
+}
+
+
+#BookHDR{
+    text-align: center;
+    font-size: 40px;
+    color: #5A2A2A;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-family: 'Anton SC', sans-serif;
+}
+
+.BookDetails {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px; 
+    margin: 0 auto;
+    margin-top: 70px;
+    width: 80%; 
+    max-width: 600px; 
+    height: auto;
+    color: #333;
+    padding: 20px; 
+    box-sizing: border-box; 
+}
+
+.button {
+    background-color: #fcfaf8;
+    padding: 25px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 200%;
+    max-width: 350px;
+    box-sizing: border-box;
+}
+
+#DropdownLabel{
+    font-family: 'Anton SC', sans-serif;
+    font-size: 20px;
+    color: #5A2A2A;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+#ReleaseDateLabel{
+    font-family: 'Anton SC', sans-serif;
+    font-size: 20px;
+    color: #5A2A2A;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+#releaseDate{
+    background-color: #fcfaf8;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px; 
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+#Dropdown{
+    background-color: #fcfaf8;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px; 
+    box-sizing: border-box;
+}
+
+
+
+#AddBookButton{
+    background-color: #5A2A2A;
+    color: #FFFFFF;
+    padding: 15px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;  
+    max-width: 300px; 
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+
+#AddBookButton:hover{
+    background-color: #7a3c3c;
+    transform: scale(1.05);  
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#AddBookButton:active{
+    background-color: #3c1a1a;
+    transform: scale(0.95);  
+}
+.input-error {
+    border: 2px solid red !important;
+}
