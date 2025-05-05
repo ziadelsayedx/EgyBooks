@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const alreadyOkButton = document.getElementById('alreadyOkButton');
     const booksColumn = document.querySelector(".books-column");
 
-    // Admin: Add "Add Book" button dynamically
     if (isAdmin && booksColumn) {
         const addBookBtn = document.createElement('button');
         addBookBtn.className = 'add-book-btn';
@@ -17,11 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
         booksColumn.insertBefore(addBookBtn, booksGrid);
     }
 
-    // Close modals when OK buttons are clicked
     if (okButton) okButton.addEventListener('click', () => successModal.style.display = 'none');
     if (alreadyOkButton) alreadyOkButton.addEventListener('click', () => alreadyModal.style.display = 'none');
 
-    // Display books with optional genre filtering
     function displayBooks(selectedGenre = 'all') {
         booksGrid.innerHTML = '';
         const books = JSON.parse(localStorage.getItem("books")) || [];
@@ -65,10 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Initialize books display
+    
     displayBooks();
-
-    // Handle genre switching
     genreItems.forEach(item => {
         item.addEventListener('click', function () {
             genreItems.forEach(i => i.classList.remove('active'));
@@ -78,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Handle all book-related button clicks (view, delete, borrow, edit)
+
     booksGrid.addEventListener("click", function (e) {
         const bookId = e.target.getAttribute("data-id");
         if (!bookId) return;
@@ -87,8 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const bookIndex = books.findIndex(b => b.title === bookId);
         const book = books[bookIndex];
         if (!book) return;
-
-        // DELETE
         if (e.target.classList.contains("delete-btn")) {
             books.splice(bookIndex, 1);
             localStorage.setItem("books", JSON.stringify(books));
@@ -96,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // VIEW
         if (e.target.classList.contains("view-btn")) {
             const viewedBook = {
                 title: book.title || "",
@@ -112,8 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = "ViewBook.html";
             return;
         }
-
-        // ADD TO CART
         if (e.target.classList.contains("borrow-btn")) {
             const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
         
@@ -125,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         
             const cartItem = {
+                id: book.title.replace(/\s+/g, '-').toLowerCase(),
                 title: book.title,
                 author: book.author || "Unknown",
                 image: book.image || "Style/Images/default-book.jpg",
@@ -133,6 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 actionType: "purchase",
                 selected: true
             };
+            
         
             cartItems.push(cartItem);
             localStorage.setItem("cartItems", JSON.stringify(cartItems));
