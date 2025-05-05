@@ -257,25 +257,12 @@ h1 {
 }
 
 .delete-btn {
-  background-color: #db2915;
+  background-color: #e74c3c;
   color: white;
-  margin-bottom: 5px;
 }
 
 .delete-btn:hover {
-  background-color: #ff1900;
-  transform: scale(1.05);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-
-.edit-btn {
-  background-color: #0ae324;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #00ff33;
+  background-color: #c0392b;
   transform: scale(1.05);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
