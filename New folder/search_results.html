@@ -32,16 +32,6 @@
 
     <div class="main-content">
       <div class="main-inner">
-        <section class="search-section">
-          <div class="search-container">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Search by title, author, or category..." />
-            <button id="search-button">Search</button>
-          </div>
-        </section>
-
         <h1 class="page-title">Search Results</h1>
         <div class="search-info" id="search-info"></div>
 
@@ -50,8 +40,6 @@
           <div class="sort-options" id="sort-options">
             <button data-sort="title-asc">Title (A-Z)</button>
             <button data-sort="title-desc">Title (Z-A)</button>
-            <button data-sort="price-asc">Price (Low to High)</button>
-            <button data-sort="price-desc">Price (High to Low)</button>
             <button data-sort="date-asc">Release Date (Oldest)</button>
             <button data-sort="date-desc">Release Date (Newest)</button>
           </div>
@@ -67,47 +55,36 @@
           cart.updateCartCount();
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        let searchTerm =
-          urlParams.get("q") || localStorage.getItem("searchTerm") || "";
-
-        const searchInput = document.getElementById("search-input");
-        if (searchInput) {
-          searchInput.value = searchTerm;
-        }
-
         const results = JSON.parse(localStorage.getItem("searchResults")) || [];
+        const searchTerm = localStorage.getItem("searchTerm") || "";
         const grid = document.getElementById("search-results-grid");
         const searchInfo = document.getElementById("search-info");
 
-        if (searchInfo) {
-          searchInfo.innerHTML = `Showing results for: <strong>"${searchTerm}"</strong>`;
-          searchInfo.style.color = "#5A2A2A";
+        searchInfo.innerHTML = `<style="color=#5A2A2A;">Showing results for: <strong>"${searchTerm}"</strong></style>`;
+        searchInfo.style.color = "#5A2A2A";
+
+        if (results.length === 0) {
+          grid.innerHTML =
+            '<p class="no-results">No books found matching your search.</p>';
+          return;
         }
 
         function renderBooks(booksToRender) {
           grid.innerHTML = "";
-
-          if (booksToRender.length === 0) {
-            grid.innerHTML =
-              '<p class="no-results">No books found matching your search.</p>';
-            return;
-          }
-
           booksToRender.forEach((book) => {
             const bookCard = document.createElement("div");
             bookCard.className = "book-card";
             bookCard.innerHTML = `
-              <img src="${
-                book.image || "Style/Images/default-book.jpg"
-              }" alt="${book.title}">
-              <h3>${book.title}</h3>
-              <p>Author: ${book.author || "Unknown Author"}</p>
-              <p>Category: ${book.genre || "N/A"}</p>
-              <p>Price: $${book.price || "0.00"}</p>
-              <button class="add-cart-btn">Add to Cart</button>
-              <a href="ViewBook.html" class="view-book-details">View Details</a>
-            `;
+            <img src="${book.image || "Style/Images/default-book.jpg"}" alt="${
+              book.title
+            }">
+            <h3>${book.title}</h3>
+            <p>Author: ${book.author || "Unknown Author"}</p>
+            <p>Stock: ${book.quantity || "N/A"}</p>
+            <p>Price: $${book.price || "0.00"}</p>
+            <button class="add-cart-btn">Add to Cart</button>
+            <a href="ViewBook.html" class="view-book-details">View Details</a>
+          `;
             grid.appendChild(bookCard);
           });
 
@@ -148,18 +125,6 @@
               return sortedBooks.sort((a, b) => a.title.localeCompare(b.title));
             case "title-desc":
               return sortedBooks.sort((a, b) => b.title.localeCompare(a.title));
-            case "price-asc":
-              return sortedBooks.sort((a, b) => {
-                const priceA = parseFloat(a.price) || 0;
-                const priceB = parseFloat(b.price) || 0;
-                return priceA - priceB;
-              });
-            case "price-desc":
-              return sortedBooks.sort((a, b) => {
-                const priceA = parseFloat(a.price) || 0;
-                const priceB = parseFloat(b.price) || 0;
-                return priceB - priceA;
-              });
             case "date-asc":
               return sortedBooks.sort((a, b) => {
                 const dateA = a.releaseDate
@@ -200,53 +165,6 @@
             document.getElementById("sort-options").classList.remove("show");
           });
         });
-
-        const searchButton = document.getElementById("search-button");
-        if (searchButton) {
-          searchButton.addEventListener("click", performSearch);
-        }
-
-        if (searchInput) {
-          searchInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-              performSearch();
-            }
-          });
-        }
-
-        function performSearch() {
-          const newSearchTerm = document
-            .getElementById("search-input")
-            .value.trim();
-          if (!newSearchTerm) return;
-
-          const allBooks = JSON.parse(localStorage.getItem("books")) || [];
-          const filteredBooks = allBooks.filter(
-            (book) =>
-              book.title.toLowerCase().includes(newSearchTerm.toLowerCase()) ||
-              (book.author &&
-                book.author
-                  .toLowerCase()
-                  .includes(newSearchTerm.toLowerCase())) ||
-              (book.genre &&
-                book.genre.toLowerCase().includes(newSearchTerm.toLowerCase()))
-          );
-
-          localStorage.setItem("searchResults", JSON.stringify(filteredBooks));
-          localStorage.setItem("searchTerm", newSearchTerm);
-
-          const newUrl =
-            window.location.pathname +
-            "?q=" +
-            encodeURIComponent(newSearchTerm);
-          window.history.pushState({ path: newUrl }, "", newUrl);
-
-          if (searchInfo) {
-            searchInfo.innerHTML = `Showing results for: <strong>"${newSearchTerm}"</strong>`;
-          }
-
-          renderBooks(filteredBooks);
-        }
       });
     </script>
   </body>

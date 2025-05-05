@@ -1,42 +1,3 @@
-.search-section {
-  padding: 20px;
-  margin: 0 auto 20px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
-  text-align: center;
-}
-
-.search-container {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-#search-input {
-  padding: 10px 15px;
-  border: 1px solid #5A2A2A;
-  border-radius: 5px;
-  font-size: 16px;
-  width: 60%;
-}
-
-#search-button {
-  padding: 10px 20px;
-  background-color: #5A2A2A;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-#search-button:hover {
-  background-color: #7a3c3c;
-}
-
 .main-content {
   background-image: url('Images/BackgroundLibrary.avif'); 
   background-size: cover; 
@@ -117,7 +78,7 @@
 .book-card p {
   font-size: 14px;
   color: #555;
-  margin: 3px 0; 
+  margin: 5px 0;
 }
 
 .book-card .add-cart-btn {
