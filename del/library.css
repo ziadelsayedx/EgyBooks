@@ -168,7 +168,6 @@ h1 {
 }
 
 .book-card {
-  position: relative;
   background: white;
   border-radius: 10px;
   padding: 10px;
@@ -260,7 +259,7 @@ h1 {
 .delete-btn {
   background-color: #db2915;
   color: white;
-  margin-bottom: 0px;
+  margin-bottom: 5px;
 }
 
 .delete-btn:hover {
@@ -386,45 +385,4 @@ h1 {
   .book-actions button {
     max-width: 100%;
   }
-}
-
-.delete-btn {
-  background-color: #db2915;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 0;
-  font-size: 12px;
-  transition: all 0.2s ease;
-}
-
-.edit-btn {
-  background-color: transparent;
-  color: #95a5a6;
-  border: none;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0;
-  font-size: 16px;
-  transition: all 0.2s ease;
-}
-.edit-btn:hover {
-  color: #7f8c8d;
-  transform: scale(1.1);
 }
