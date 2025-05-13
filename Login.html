@@ -1,146 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
-    <link rel="stylesheet" href="Style/Login.css">
-    <link rel="stylesheet" href="Style/Header.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap"
+      rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png" />
+    <link rel="stylesheet" href="Style/Login.css" />
+    <link rel="stylesheet" href="Style/Header.css" />
     <title>Login</title>
-</head>
-<body>
+  </head>
+  <body>
     <div class="main-grid">
-        <div class="left-content">
-            <h2>Welcome to EgyBooks</h2>
-            <p>Your ultimate destination for book lovers. Discover thousands of books, connect with readers, and expand your knowledge.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>📚 Extensive Library</h3>
-                    <p>Access to thousands of books in all genres</p>
-                </div>
-                <div class="feature">
-                    <h3>🌟 Personalized</h3>
-                    <p>Get recommendations based on your interests</p>
-                </div>
-            </div>
+      <div class="left-content">
+        <h2>Welcome to EgyBooks</h2>
+        <p>
+          Your ultimate destination for book lovers. Discover thousands of
+          books, connect with readers, and expand your knowledge.
+        </p>
+        <div class="features">
+          <div class="feature">
+            <h3>📚 Extensive Library</h3>
+            <p>Access to thousands of books in all genres</p>
+          </div>
+          <div class="feature">
+            <h3>🌟 Personalized</h3>
+            <p>Get recommendations based on your interests</p>
+          </div>
         </div>
+      </div>
 
-        <div class="right-form">
-            <section class="BookDetails">
-                <h2 id="BookHDR">Login</h2>
-                <form id="loginForm">
-                    <input type="text" class="button" name="username" id="username" placeholder="Email or Username"><br><br>
-                    <input type="password" class="button" name="password" id="password" placeholder="Password" ><br><br>
-                    <input type="submit" value="Confirm" id="AddBookButton">
-                    <div id="loginMessage" style="color: red; text-align: center; margin: 10px 0;"></div>
-                </form>
-                <div class="separator">
-                    <hr><span>or</span><hr>
-                </div>
-                <a href="Sign up.html"><input type="button" value="Sign Up" id="AddBookButton"></a>
-            </section>
-        </div>
+      <div class="right-form">
+        <section class="BookDetails">
+          <h2 id="BookHDR">Login</h2>
+          <form id="loginForm">
+            <input
+              type="text"
+              class="button"
+              name="username"
+              id="username"
+              placeholder="Email or Username" /><br /><br />
+            <input
+              type="password"
+              class="button"
+              name="password"
+              id="password"
+              placeholder="Password" /><br /><br />
+            <input type="submit" value="Confirm" id="AddBookButton" />
+            <div
+              id="loginMessage"
+              style="color: red; text-align: center; margin: 10px 0"></div>
+          </form>
+          <div class="separator">
+            <hr />
+            <span>or</span>
+            <hr />
+          </div>
+          <a href="Sign up.html"
+            ><input type="button" value="Sign Up" id="AddBookButton"
+          /></a>
+        </section>
+      </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const usernameOrEmail = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const messageElement = document.getElementById('loginMessage');
-    
-    messageElement.textContent = "";
-    document.getElementById("username").style.borderColor = "";
-    document.getElementById("password").style.borderColor = "";
-    if (!usernameOrEmail || !password) {
-        if (!usernameOrEmail) {
-            document.getElementById("username").style.borderColor = "red";
-        }
-        if (!password) {
-            document.getElementById("password").style.borderColor = "red";
-        }
-        messageElement.textContent = "Please fill in all fields";
-        messageElement.style.color = "red";
-        return;
-    }
-    
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-    messageElement.textContent = "Logging in...";
-    messageElement.style.color = "blue";
-    
-    setTimeout(() => {
-        let userFound = false;
-        let correctPassword = false;
-        let actualUsername = "";
-        
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key === "CurrentUser" || key === "currentUser") continue;
-            try {
-                const userData = JSON.parse(localStorage.getItem(key));
-                
-                if (key.toLowerCase() === usernameOrEmail.toLowerCase() || 
-                    (userData.email && userData.email.toLowerCase() === usernameOrEmail.toLowerCase())) {
-                    
-                    userFound = true;
-                    actualUsername = key;
-                    if (userData.password === password) {
-                        correctPassword = true;
-                        break;
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing user data:", e);
-            }
-        }
-        
-        if (userFound && correctPassword) {
-            messageElement.textContent = "Login successful! Redirecting...";
-            messageElement.style.color = "green";
+          const usernameOrEmail = document
+            .getElementById("username")
+            .value.trim();
+          const password = document.getElementById("password").value;
+          const messageElement = document.getElementById("loginMessage");
 
-            const userData = JSON.parse(localStorage.getItem(actualUsername));
-            localStorage.setItem("CurrentUser", JSON.stringify({
-                username: actualUsername,
-                ...userData
-            }));
-            setTimeout(() => {
-                window.location.href = "home_page.html";
-            }, 1500);
-        } 
-        else {
-            document.getElementById("username").style.borderColor = "red";
-            document.getElementById("password").style.borderColor = "red";
-            
-            if (!userFound) {
-                messageElement.textContent = "Username/email not found";
-            } else {
-                messageElement.textContent = "Incorrect password";
+          messageElement.textContent = "";
+          document.getElementById("username").style.borderColor = "";
+          document.getElementById("password").style.borderColor = "";
+          if (!usernameOrEmail || !password) {
+            if (!usernameOrEmail) {
+              document.getElementById("username").style.borderColor = "red";
             }
+            if (!password) {
+              document.getElementById("password").style.borderColor = "red";
+            }
+            messageElement.textContent = "Please fill in all fields";
             messageElement.style.color = "red";
-        }
-    }, 500);
-});
+            return;
+          }
+
+          messageElement.textContent = "Logging in...";
+          messageElement.style.color = "blue";
+
+          setTimeout(() => {
+            let userFound = false;
+            let correctPassword = false;
+            let actualUsername = "";
+
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key === "CurrentUser" || key === "currentUser") continue;
+              try {
+                const userData = JSON.parse(localStorage.getItem(key));
+
+                if (
+                  key.toLowerCase() === usernameOrEmail.toLowerCase() ||
+                  (userData.email &&
+                    userData.email.toLowerCase() ===
+                      usernameOrEmail.toLowerCase())
+                ) {
+                  userFound = true;
+                  actualUsername = key;
+                  if (userData.password === password) {
+                    correctPassword = true;
+                    break;
+                  }
+                }
+              } catch (e) {
+                console.error("Error parsing user data:", e);
+              }
+            }
+
+            if (userFound && correctPassword) {
+              messageElement.textContent = "Login successful! Redirecting...";
+              messageElement.style.color = "green";
+
+              const userData = JSON.parse(localStorage.getItem(actualUsername));
+              localStorage.setItem(
+                "CurrentUser",
+                JSON.stringify({
+                  username: actualUsername,
+                  ...userData,
+                })
+              );
+              setTimeout(() => {
+                window.location.href = "home_page.html";
+              }, 1500);
+            } else {
+              document.getElementById("username").style.borderColor = "red";
+              document.getElementById("password").style.borderColor = "red";
+
+              if (!userFound) {
+                messageElement.textContent = "Username/email not found";
+              } else {
+                messageElement.textContent = "Incorrect password";
+              }
+              messageElement.style.color = "red";
+            }
+          }, 500);
+        });
     </script>
     <script>
-        (function createAdminIfNotExists() {
-          const adminExists = localStorage.getItem("admin");
-          if (!adminExists) {
-            const adminData = {
-              email: "admin@example.com",
-              phone: "0000000000",
-              password: "HelloWorld",
-              role: "admin",
-              name: "admin",
-              books: [],
-              registeredAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString()
-            };
-            localStorage.setItem("admin", JSON.stringify(adminData));
-            console.log("Admin account created.");
-          }
-        })();
-        </script>        
-</body>
+      (function createAdminIfNotExists() {
+        const adminExists = localStorage.getItem("admin");
+        if (!adminExists) {
+          const adminData = {
+            email: "admin@example.com",
+            phone: "0000000000",
+            password: "admin",
+            role: "admin",
+            name: "admin",
+            books: [],
+            registeredAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+          };
+          localStorage.setItem("admin", JSON.stringify(adminData));
+          console.log("Admin account created.");
+        }
+      })();
+    </script>
+  </body>
 </html>

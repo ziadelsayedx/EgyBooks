@@ -1,0 +1,37 @@
+#UpdateBookButton {
+  background-color: #5a2a2a;
+  color: #ffffff;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: "Anton SC", sans-serif;
+  width: 40%;
+  max-width: 300px;
+  box-sizing: border-box;
+  margin: 20px 0;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#UpdateBookButton:hover {
+  background-color: #7a3c3c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+#UpdateBookButton:active {
+  background-color: #3c1a1a;
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#UpdateBookButton:focus {
+  outline: 2px solid #9a5a5a;
+  outline-offset: 2px;
+}

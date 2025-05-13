@@ -131,48 +131,102 @@ document.addEventListener("DOMContentLoaded", function () {
 
     grid.innerHTML = "";
 
+    const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+    const cartIds = cartItems.map((item) => item.id);
+
     booksToDisplay.forEach((book) => {
+      const bookId = book.title.replace(/\s+/g, "-").toLowerCase();
+      const isInCart = cartIds.includes(bookId);
+
       const bookCard = document.createElement("div");
       bookCard.className = "book-card";
       bookCard.dataset.title = book.title;
 
       bookCard.innerHTML = `
-        <img src="${book.image || "Style/Images/default-book.jpg"}" alt="${
-        book.title
-      }">
-        <h3>${book.title}</h3>
-        <p>Author: ${book.author || "Unknown Author"}</p>
-        <p>Stock: ${book.quantity || "N/A"}</p>
-        <p>Price: $${book.price || "0.00"}</p>
-        <div class="book-card-buttons">
-          <button class="add-cart-btn">Add to Cart</button>
-          <a href="ViewBook.html" class="view-book-details">View Details</a>
+        <img src="${
+          book.image || "Style/Images/default-book.jpg"
+        }" class="book-image" alt="${book.title}">
+        <div class="book-info">
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">Author: ${book.author || "Unknown"}</div>
+            <div class="book-stock">Stock: ${book.quantity || "0"}</div>
+            <div class="book-price">Price: $${book.price || "0.00"}</div>
+            <div class="book-actions">
+                <button class="view-btn" data-id="${book.title}">View</button>
+                <button class="borrow-btn" data-id="${book.title}" ${
+        isInCart
+          ? 'disabled style="background-color: #95a5a6; cursor: not-allowed;"'
+          : ""
+      }>
+                    ${isInCart ? "Added to Cart" : "Add To Cart"}
+                </button>
+            </div>
         </div>
       `;
 
       grid.appendChild(bookCard);
     });
 
-    addViewDetailsListeners();
-
-    document.querySelectorAll(".add-cart-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const bookCard = this.closest(".book-card");
-        const book = books.find((b) => b.title === bookCard.dataset.title);
-
+    grid.querySelectorAll(".view-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const bookTitle = this.getAttribute("data-id");
+        const book = books.find(b => b.title === bookTitle);
+        
         if (book) {
-          cart.addItem({
-            id: book.id,
+          const viewedBook = {
+            title: book.title || "",
+            author: book.author || "",
+            image: book.image || "",
+            stock: book.quantity || "0",
+            price: book.price || "0",
+            description: book.description || "No description available",
+            genre: book.genre || "Unknown",
+            releaseDate: book.releaseDate || "Unknown",
+          };
+          localStorage.setItem("ViewedBook", JSON.stringify(viewedBook));
+          window.location.href = "ViewBook.html";
+        }
+      });
+    });
+  
+    grid.querySelectorAll(".borrow-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const bookTitle = this.getAttribute("data-id");
+        const book = books.find(b => b.title === bookTitle);
+        
+        if (book) {
+          const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+          const alreadyInCart = cartItems.find(item => item.title === book.title);
+  
+          if (alreadyInCart) {
+            return;
+          }
+  
+          const cartItem = {
+            id: book.title.replace(/\s+/g, "-").toLowerCase(),
             title: book.title,
-            author: book.author,
-            price: parseFloat(book.price),
-            image: book.image,
-          });
+            author: book.author || "Unknown",
+            image: book.image || "Style/Images/default-book.jpg",
+            price: parseFloat(book.price) || 0,
+            quantity: 1,
+            actionType: "purchase",
+            selected: true,
+          };
+  
+          cartItems.push(cartItem);
+          localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  
+          this.textContent = "Added to Cart";
+          this.disabled = true;
+          this.style.backgroundColor = "#95a5a6";
+          this.style.cursor = "not-allowed";
+  
+          cart.updateCartCount();
         }
       });
     });
   }
-
+  
   function initSliders() {
     const sliders = document.querySelectorAll(".book-slider-container");
 

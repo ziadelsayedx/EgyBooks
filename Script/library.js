@@ -54,28 +54,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const bookId = book.title.replace(/\s+/g, "-").toLowerCase();
       const isInCart = cartIds.includes(bookId);
+      const isOutOfStock = parseInt(book.quantity) <= 0;
 
       card.innerHTML = `
-    ${isAdmin ? `
-    <button class="edit-btn" data-id="${book.title}">✏️</button>
-    <button class="delete-btn" data-id="${book.title}">X</button>
-    ` : ''}
-    <img src="${book.image}" class="book-image" alt="Book Cover">
-    <div class="book-info">
-        <div class="book-title">${book.title}</div>
-        <div class="book-author">Author: ${book.author || "Unknown"}</div>
-        <div class="book-stock">Stock: ${book.quantity || "0"}</div>
-        <div class="book-price">Price: $${book.price || "0.00"}</div>
-        <div class="book-actions">
-            <button class="view-btn" data-id="${book.title}">View</button>
-            <button class="borrow-btn" data-id="${book.title}" ${
-    isInCart ? 'disabled style="background-color: #95a5a6; cursor: not-allowed;"' : ''
-}>
-                ${isInCart ? "Added to Cart" : "Add To Cart"}
-            </button>
-        </div>
-    </div>
+  ${
+    isAdmin
+      ? `
+  <button class="edit-btn" data-id="${book.title}">✏️</button>
+  <button class="delete-btn" data-id="${book.title}">X</button>
+  `
+      : ""
+  }
+  <img src="${book.image}" class="book-image" alt="Book Cover">
+  <div class="book-info">
+      <div class="book-title">${book.title}</div>
+      <div class="book-author">Author: ${book.author || "Unknown"}</div>
+      <div class="book-stock">Stock: ${book.quantity || "0"}</div>
+      <div class="book-price">Price: $${book.price || "0.00"}</div>
+      <div class="book-actions">
+          <button class="view-btn" data-id="${book.title}">View</button>
+          <button class="borrow-btn" data-id="${book.title}" ${
+        isInCart || isOutOfStock
+          ? 'disabled style="background-color: #95a5a6; cursor: not-allowed;"'
+          : ""
+      }>
+              ${
+                isInCart
+                  ? "Added to Cart"
+                  : isOutOfStock
+                  ? "Out of Stock"
+                  : "Add To Cart"
+              }
+          </button>
+      </div>
+  </div>
 `;
+
       booksGrid.appendChild(card);
     });
   }
@@ -120,6 +134,14 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = "ViewBook.html";
       return;
     }
+    if (e.target.classList.contains("edit-btn")) {
+      const bookToEdit = books.find(b => b.title === bookId);
+      if (bookToEdit) {
+          localStorage.setItem("bookToEdit", JSON.stringify(bookToEdit));
+          window.location.href = "Edit.html";
+      }
+      return;
+  }
     if (e.target.classList.contains("borrow-btn")) {
       const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
 

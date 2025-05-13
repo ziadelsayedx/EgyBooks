@@ -84,19 +84,32 @@ document.addEventListener("DOMContentLoaded", function () {
     renderBooks();
   }
 
-  function removeBook(bookId) {
-    let allBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
-    const bookIndex = allBooks.findIndex((book) => book.id === bookId);
+function removeBook(bookId) {
+  let allBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
+  const bookIndex = allBooks.findIndex((book) => book.id === bookId);
 
-    if (bookIndex !== -1) {
-        allBooks.splice(bookIndex, 1);
-        localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
-        renderBooks();
-        
-        if (window.location.pathname.includes("Profile.html")) {
-            updateProfileBooksCount();
-        }
+  if (bookIndex !== -1) {
+    const returnedBook = allBooks[bookIndex];
+    
+    if (returnedBook.type === "borrow") {
+      const booksData = JSON.parse(localStorage.getItem("books")) || [];
+      const bookDataIndex = booksData.findIndex(b => b.title === returnedBook.title);
+      
+      if (bookDataIndex !== -1) {
+        const currentStock = parseInt(booksData[bookDataIndex].quantity) || 0;
+        booksData[bookDataIndex].quantity = currentStock + 1;
+        localStorage.setItem("books", JSON.stringify(booksData));
+      }
     }
+    
+    allBooks.splice(bookIndex, 1);
+    localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
+    renderBooks();
+    
+    if (window.location.pathname.includes("Profile.html")) {
+      updateProfileBooksCount();
+    }
+  }
 }
 
 function updateProfileBooksCount() {
