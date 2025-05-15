@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
   <div class="book-info">
       <div class="book-title">${book.title}</div>
       <div class="book-author">Author: ${book.author || "Unknown"}</div>
-      <div class="book-stock">Stock: ${book.quantity || "0"}</div>
+      <div class="book-stock">Stock: ${parseInt(book.quantity) === 0 ? "Out of Stock" : book.quantity || "Out of Stock"}</div>
       <div class="book-price">Price: $${book.price || "0.00"}</div>
       <div class="book-actions">
           <button class="view-btn" data-id="${book.title}">View</button>
@@ -152,26 +152,14 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const cartItem = {
-        id: book.title.replace(/\s+/g, "-").toLowerCase(),
-        title: book.title,
-        author: book.author || "Unknown",
-        image: book.image || "Style/Images/default-book.jpg",
-        price: parseFloat(book.price) || 0,
-        quantity: 1,
-        actionType: "purchase",
-        selected: true,
-      };
+      if (sharedCart.addToCart(book)) {
+        e.target.textContent = "Added to Cart";
+        e.target.disabled = true;
+        e.target.style.backgroundColor = "#95a5a6";
+        e.target.style.cursor = "not-allowed";
 
-      cartItems.push(cartItem);
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-
-      e.target.textContent = "Added to Cart";
-      e.target.disabled = true;
-      e.target.style.backgroundColor = "#95a5a6";
-      e.target.style.cursor = "not-allowed";
-
-      if (successModal) successModal.style.display = "flex";
+        if (successModal) successModal.style.display = "flex";
+      }
     }
   });
 });

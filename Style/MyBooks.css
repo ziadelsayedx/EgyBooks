@@ -112,6 +112,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
+    margin-left: 10px;
 }
 
 .return-btn:hover {
@@ -126,6 +127,12 @@
     font-weight: bold;
     background-color: #4CAF50;
     color: white;
+}
+
+.owned-quantity {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-left: 5px;
 }
 
 .modal {
@@ -216,3 +223,112 @@
   .cancel-btn:hover {
     background-color: #7a3c3c;
   }
+
+.purchase-card {
+    border: 2px solid #4CAF50;
+}
+
+.borrow-card {
+    border: 2px solid #FFD700;
+}
+
+.purchase-info, .borrow-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    margin-bottom: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+.quantity-text {
+    color: #5A2A2A;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin: 5px 0;
+}
+
+.remove-btn {
+    background-color: #ff4444;
+}
+
+.remove-btn:hover {
+    background-color: #cc0000;
+}
+
+.book-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    width: 100%;
+    justify-content: center;
+}
+
+.remove-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    padding: 10px;
+}
+
+.remove-options-grid .cancel-option {
+    grid-column: 1 / -1;
+}
+
+.remove-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.remove-option[data-action="one"] {
+    border: 2px solid #ff6b6b;
+}
+
+.remove-option[data-action="all"] {
+    border: 2px solid #ff4444;
+}
+
+.remove-option[data-action="cancel"] {
+    border: 2px solid #5A2A2A;
+}
+
+.option-icon {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.remove-option[data-action="one"] .option-icon {
+    color: #ff6b6b;
+}
+
+.remove-option[data-action="all"] .option-icon {
+    color: #ff4444;
+}
+
+.remove-option[data-action="cancel"] .option-icon {
+    color: #5A2A2A;
+}
+
+.option-text {
+    font-size: 14px;
+    font-weight: bold;
+    color: #5A2A2A;
+}

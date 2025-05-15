@@ -15,18 +15,30 @@ document.addEventListener("DOMContentLoaded", function () {
       (book) => book.userId === currentUser.username
     );
 
+    // Combine duplicate books and sum their quantities
+    let combinedBooks = myBooks.reduce((acc, book) => {
+      const existingBook = acc.find(b => b.title === book.title && b.type === book.type);
+      
+      if (existingBook) {
+        existingBook.quantity = (parseInt(existingBook.quantity) || 1) + (parseInt(book.quantity) || 1);
+      } else {
+        acc.push({...book, quantity: parseInt(book.quantity) || 1});
+      }
+      return acc;
+    }, []);
+
     const booksContainer = document.getElementById("booksContainer");
     booksContainer.innerHTML = "";
 
-    if (myBooks.length === 0) {
+    if (combinedBooks.length === 0) {
       booksContainer.innerHTML =
         '<div class="no-books">No books in your collection yet.</div>';
       return;
     }
 
-    myBooks.forEach((book) => {
+    combinedBooks.forEach((book) => {
       const bookCard = document.createElement("div");
-      bookCard.className = "book-card";
+      bookCard.className = `book-card ${book.type}-card`;
       bookCard.dataset.id = book.id;
 
       const isOwned = book.type === "purchase";
@@ -37,17 +49,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 }" alt="Book Cover" class="book-cover">
                 <h3 class="book-title">${book.title}</h3>
                 <p class="book-author">${book.author || "Unknown Author"}</p>
-                <div class="status-container">
-                    ${
-                      isOwned
-                        ? `<div class="owned-badge">Owned</div>
-                         <button class="return-btn">Remove Book</button>`
-                        : `<button class="status-btn ${
-                            book.status
-                          }">${getStatusText(book.status)}</button>
-                         <button class="return-btn">Return Book</button>`
-                    }
-                </div>
+                ${
+                  isOwned
+                    ? `
+                    <div class="book-actions">
+                        <div class="owned-badge">Owned <span class="owned-quantity">(${book.quantity})</span></div>
+                        <button class="return-btn remove-btn">Remove Book</button>
+                    </div>
+                    `
+                    : `
+                    <div class="borrow-info">
+                        <button class="status-btn ${book.status}">${getStatusText(book.status)}</button>
+                        <button class="return-btn">Return Book</button>
+                    </div>
+                    `
+                }
             `;
 
       booksContainer.appendChild(bookCard);
@@ -100,8 +116,20 @@ function removeBook(bookId) {
         booksData[bookDataIndex].quantity = currentStock + 1;
         localStorage.setItem("books", JSON.stringify(booksData));
       }
+    } else if (returnedBook.type === "purchase") {
+      // For purchased books, check if there are multiple quantities
+      const quantity = parseInt(returnedBook.quantity) || 1;
+      if (quantity > 1) {
+        // If quantity > 1, decrease quantity by 1
+        returnedBook.quantity = quantity - 1;
+        allBooks[bookIndex] = returnedBook;
+        localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
+        renderBooks();
+        return;
+      }
     }
     
+    // If quantity is 1 or it's a borrowed book, remove the entire entry
     allBooks.splice(bookIndex, 1);
     localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
     renderBooks();
@@ -164,36 +192,67 @@ function updateProfileBooksCount() {
     const modal = document.getElementById("returnModal");
     const modalTitle = document.querySelector(".modal-title");
     const modalMessage = document.querySelector(".modal-message");
+    const modalButtons = document.querySelector(".modal-buttons");
 
     modalTitle.textContent = "Remove Book";
-    modalMessage.textContent =
-      "Are you sure you want to permanently remove this book from your collection?";
+    modalMessage.textContent = "How would you like to remove this book?";
+    
+    // Create grid of options
+    modalButtons.innerHTML = `
+      <div class="remove-options-grid">
+        <button class="remove-option" data-action="one">
+          <div class="option-icon">-1</div>
+          <div class="option-text">Remove One Copy</div>
+        </button>
+        <button class="remove-option" data-action="all">
+          <div class="option-icon">×</div>
+          <div class="option-text">Remove All Copies</div>
+        </button>
+        <button class="remove-option cancel-option" data-action="cancel">
+          <div class="option-icon">←</div>
+          <div class="option-text">Cancel</div>
+        </button>
+      </div>
+    `;
+
     modal.style.display = "flex";
 
-    const confirmBtn = document.querySelector(".confirm-btn");
-    const cancelBtn = document.querySelector(".cancel-btn");
+    // Add event listeners for the options
+    modalButtons.querySelectorAll('.remove-option').forEach(button => {
+      button.onclick = function() {
+        const action = this.getAttribute('data-action');
+        
+        if (action === 'cancel') {
+          modal.style.display = "none";
+          return;
+        }
 
-    confirmBtn.onclick = null;
-    cancelBtn.onclick = null;
+        let allBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
+        const bookIndex = allBooks.findIndex((book) => book.id === bookId);
 
-    confirmBtn.onclick = function () {
-      removeBook(bookId);
-      modal.style.display = "none";
-      modalTitle.textContent = "Return Book";
-      modalMessage.textContent = "Are you sure you want to return this book?";
-    };
+        if (bookIndex !== -1) {
+          const book = allBooks[bookIndex];
+          
+          if (action === 'one' && book.quantity > 1) {
+            // Remove one copy
+            book.quantity--;
+            allBooks[bookIndex] = book;
+          } else {
+            // Remove all copies or last copy
+            allBooks.splice(bookIndex, 1);
+          }
+          
+          localStorage.setItem("libraryBooks", JSON.stringify(allBooks));
+          renderBooks();
+        }
 
-    cancelBtn.onclick = function () {
-      modal.style.display = "none";
-      modalTitle.textContent = "Return Book";
-      modalMessage.textContent = "Are you sure you want to return this book?";
-    };
+        modal.style.display = "none";
+      };
+    });
 
     const outsideClickHandler = function (event) {
       if (event.target == modal) {
         modal.style.display = "none";
-        modalTitle.textContent = "Return Book";
-        modalMessage.textContent = "Are you sure you want to return this book?";
         window.removeEventListener("click", outsideClickHandler);
       }
     };

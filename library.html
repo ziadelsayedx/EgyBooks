@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="Style/Header.css">
   <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
   <link rel="stylesheet" href="Style/library.css">
+  <script src="Script/shared-cart.js"></script>
   <script src="Script/library.js" defer></script>
 </head>
 <body>
@@ -16,11 +17,11 @@
       <img id="Logo" src="Style/Images/logo.png" alt="Logo" class="logo">
       <h1 id="EgyBooks"><a href="home_page.html">EgyBooks</a></h1>
       <div class="HeadButtons">
-          <div class="cart-container">
-              <button id="cart-btn">
-                <a href="cart.html">🛒 Cart</a>
-              </button>
-            </div>
+        <div class="cart-container">
+          <button id="cart-btn">
+            <a href="cart.html">🛒 Cart (<span id="cart-count">0</span>)</a>
+          </button>
+        </div>
           <button><a href="home_page.html">Home</a></button> 
           <button>Library</button>
           <button><a href="MyBooks.html">My Books</a></button> 
