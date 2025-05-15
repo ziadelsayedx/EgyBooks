@@ -6,6 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="Style/Images/Logo.png">
     <link rel="stylesheet" href="Style/header.css">
+    <script src="Script/shared-cart.js"></script>
     <link rel="stylesheet" href="Style/Profile.css">
     
     <title>Profile Page</title>
@@ -15,6 +16,11 @@
         <img id="Logo" src="Style/Images/logo.png" alt="Logo" class="logo">
         <h1 id="EgyBooks">EgyBooks</h1>
         <div class="HeadButtons">
+            <div class="cart-container">
+          <button id="cart-btn">
+            <a href="cart.html">🛒 Cart (<span id="cart-count">0</span>)</a>
+          </button>
+        </div>
             <button><a href="home_page.html">Home</a></button> 
             <button><a href="library.html">Library</a></button> 
             <button><a href="MyBooks.html">My Books</a></button>
@@ -55,8 +61,14 @@
                         <label for="username">Username:</label>
                         <input type="text" id="editUsername" name="username" required>
 
-                        <label for="password">Password:</label>
-                        <input type="password" id="editPassword" name="password" placeholder="Enter new password">
+
+                        <label for="oldPassword">Current Password:</label>
+                        <input type="password" id="oldPassword" name="oldPassword" placeholder="Enter current password" required>
+                        <p class="error" id="oldPasswordError"></p>
+
+                        <label for="newPassword">New Password:</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" minlength="8">
+                        <p class="error" id="newPasswordError"></p>
 
                         <div class="edit-buttons">
                             <input type="submit" value="Save Changes" class="save-btn">
@@ -65,6 +77,16 @@
                     </form>
                 </div>
             </div>  
+
+            <div id="successModal" class="success-modal modal">
+                <div class="modal-content success-content">
+                    <div class="modal-header">
+                        <span id="checkMark">&#10004;</span>
+                        <h2>Profile Updated Successfully</h2>
+                    </div>
+                    <button id="okButton" class="ok-button">OK</button>
+                </div>
+            </div>
         </section>
     </div>
 

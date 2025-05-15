@@ -1,37 +1,207 @@
+.background-section {
+    background-image: url('Background_Library.avif');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center; 
+    padding: 20px; 
+    height: auto;
+}
+
+.main-content {
+    background-image: url('Background\ Library.avif'); 
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 30px; 
+    height: 135vh; 
+}
+
+#BookHDR {
+    text-align: center;
+    font-size: 40px;
+    color: #5A2A2A;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-family: 'Anton SC', sans-serif;
+}
+
+.BookDetails {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px; 
+    margin: 0 auto;
+    margin-top: 30px;
+    width: 80%; 
+    max-width: 600px;
+    height: auto;
+    color: #333;
+    padding: 20px; 
+    box-sizing: border-box; 
+    text-align: center;
+}
+
+.button {
+    background-color: #fcfaf8;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px; 
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+#DropdownLabel {
+    font-family: 'Anton SC', sans-serif;
+    font-size: 20px;
+    color: #5A2A2A;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+#ReleaseDateLabel {
+    font-family: 'Anton SC', sans-serif;
+    font-size: 20px;
+    color: #5A2A2A;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+#releaseDate {
+    background-color: #fcfaf8;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px; 
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+#Dropdown {
+    background-color: #fcfaf8;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px; 
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+#UploadImageButton {
+    background-color: #5A2A2A;
+    color: #FFFFFF;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px;
+    box-sizing: border-box;
+    margin: 10px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#UploadImageButton:hover {
+    background-color: #7a3c3c;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#UploadImageButton:active {
+    background-color: #3c1a1a;
+    transform: scale(0.95);
+}
+
 #UpdateBookButton {
-  background-color: #5a2a2a;
-  color: #ffffff;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-family: "Anton SC", sans-serif;
-  width: 40%;
-  max-width: 300px;
-  box-sizing: border-box;
-  margin: 20px 0;
-  display: block;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #5A2A2A;
+    color: #FFFFFF;
+    padding: 15px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 40%;
+    max-width: 300px;
+    box-sizing: border-box;
+    margin: 10px auto;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 #UpdateBookButton:hover {
-  background-color: #7a3c3c;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background-color: #7a3c3c;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #UpdateBookButton:active {
-  background-color: #3c1a1a;
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #3c1a1a;
+    transform: scale(0.95);
 }
 
-#UpdateBookButton:focus {
-  outline: 2px solid #9a5a5a;
-  outline-offset: 2px;
+.input-error {
+    border: 2px solid red !important; 
+}
+
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); 
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    font-family: 'Anton SC', sans-serif;
+    font-size: 18px;
+    color: #5A2A2A;
+}
+
+#checkMark {
+    color: green;
+    font-size: 40px;
+    margin-right: 10px;
+}
+
+.ok-button {
+    background-color: #5A2A2A;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.ok-button:hover {
+    background-color: #7a3c3c;
+}
+
+.ok-button:active {
+    background-color: #3c1a1a;
 }

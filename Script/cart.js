@@ -265,17 +265,30 @@ const cart = {
     let libraryBooks = JSON.parse(localStorage.getItem("libraryBooks")) || [];
 
     itemsToProcess.forEach((item) => {
-      libraryBooks.push({
-        id: crypto.randomUUID(),
-        title: item.title,
-        author: item.author,
-        image: item.image,
-        price: item.price,
-        type: action,
-        status: action === "borrow" ? "reading" : "owned",
-        userId: currentUser.username,
-        dateAdded: new Date().toISOString(),
-      });
+      const existingBook = libraryBooks.find(
+        book => book.title === item.title && 
+               book.userId === currentUser.username && 
+               book.type === action
+      );
+
+      if (existingBook && action === "purchase") {
+        // If user already owns this book, update the quantity
+        existingBook.quantity = (parseInt(existingBook.quantity) || 1) + (parseInt(item.quantity) || 1);
+      } else {
+        // Add as a new book
+        libraryBooks.push({
+          id: crypto.randomUUID(),
+          title: item.title,
+          author: item.author,
+          image: item.image,
+          price: item.price,
+          type: action,
+          status: action === "borrow" ? "reading" : "owned",
+          userId: currentUser.username,
+          quantity: action === "purchase" ? (parseInt(item.quantity) || 1) : 1,
+          dateAdded: new Date().toISOString(),
+        });
+      }
     });
 
     localStorage.setItem("libraryBooks", JSON.stringify(libraryBooks));
@@ -290,12 +303,11 @@ const cart = {
     this.updateCartCount();
     this.displayCartItems();
 
-    itemCount = itemsToProcess.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = itemsToProcess.reduce((sum, item) => sum + (action === "purchase" ? item.quantity : 1), 0);
     const actionText = action === "purchase" ? "purchased" : "borrowed";
-    if (actionText == "borrowed") itemCount = 1;
     this.showModal(
       "Success",
-      `You've successfully ${actionText} ${itemCount} items!`
+      `You've successfully ${actionText} ${itemCount} item${itemCount > 1 ? 's' : ''}!`
     );
 
     if (window.location.pathname.includes("Profile.html")) {

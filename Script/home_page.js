@@ -1,33 +1,3 @@
-if (
-  !localStorage.getItem("books") ||
-  JSON.parse(localStorage.getItem("books")).length === 0
-) {
-  const defaultBooks = [
-    {
-      id: "1",
-      title: "Romeo and Juliet",
-      author: "William Shakespeare",
-      quantity: "15",
-      price: "12",
-      description: "A classic tragedy about two young star-crossed lovers",
-      releaseDate: "1597-01-01",
-      genre: "Fiction",
-      image: "Style/Images/Romeo and Juliet.jpg",
-    },
-    {
-      id: "2",
-      title: "The Giving Tree",
-      author: "Shel Silverstein",
-      quantity: "10",
-      price: "15",
-      description: "A story about the relationship between a boy and a tree",
-      releaseDate: "1964-10-07",
-      genre: "Fiction",
-      image: "Style/Images/The Giving Tree.jpg",
-    },
-  ];
-  localStorage.setItem("books", JSON.stringify(defaultBooks));
-}
 
 document.addEventListener("DOMContentLoaded", function () {
   const currentUser = JSON.parse(localStorage.getItem("CurrentUser"));
@@ -137,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     booksToDisplay.forEach((book) => {
       const bookId = book.title.replace(/\s+/g, "-").toLowerCase();
       const isInCart = cartIds.includes(bookId);
+      const isOutOfStock = parseInt(book.quantity) <= 0;
 
       const bookCard = document.createElement("div");
       bookCard.className = "book-card";
@@ -149,16 +120,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="book-info">
             <div class="book-title">${book.title}</div>
             <div class="book-author">Author: ${book.author || "Unknown"}</div>
-            <div class="book-stock">Stock: ${book.quantity || "0"}</div>
+            <div class="book-stock">Stock: ${parseInt(book.quantity) === 0 ? "Out of Stock" : book.quantity || "Out of Stock"}</div>
             <div class="book-price">Price: $${book.price || "0.00"}</div>
             <div class="book-actions">
                 <button class="view-btn" data-id="${book.title}">View</button>
                 <button class="borrow-btn" data-id="${book.title}" ${
-        isInCart
+        isInCart || isOutOfStock
           ? 'disabled style="background-color: #95a5a6; cursor: not-allowed;"'
           : ""
       }>
-                    ${isInCart ? "Added to Cart" : "Add To Cart"}
+                    ${
+                      isInCart
+                        ? "Added to Cart"
+                        : isOutOfStock
+                        ? "Out of Stock"
+                        : "Add To Cart"
+                    }
                 </button>
             </div>
         </div>
@@ -195,33 +172,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const book = books.find(b => b.title === bookTitle);
         
         if (book) {
-          const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-          const alreadyInCart = cartItems.find(item => item.title === book.title);
-  
-          if (alreadyInCart) {
-            return;
+          if (sharedCart.addToCart(book)) {
+            this.textContent = "Added to Cart";
+            this.disabled = true;
+            this.style.backgroundColor = "#95a5a6";
+            this.style.cursor = "not-allowed";
           }
-  
-          const cartItem = {
-            id: book.title.replace(/\s+/g, "-").toLowerCase(),
-            title: book.title,
-            author: book.author || "Unknown",
-            image: book.image || "Style/Images/default-book.jpg",
-            price: parseFloat(book.price) || 0,
-            quantity: 1,
-            actionType: "purchase",
-            selected: true,
-          };
-  
-          cartItems.push(cartItem);
-          localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  
-          this.textContent = "Added to Cart";
-          this.disabled = true;
-          this.style.backgroundColor = "#95a5a6";
-          this.style.cursor = "not-allowed";
-  
-          cart.updateCartCount();
         }
       });
     });
