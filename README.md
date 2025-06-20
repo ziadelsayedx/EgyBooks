@@ -1,4 +1,4 @@
-# EgyBooks - Online Web Library
+# EgyBooks - Online Library Management System
 
 EgyBooks is a comprehensive web application for managing a digital library, built with Django backend. The application allows users to browse, purchase, borrow, and manage books with server-side data management.
 
