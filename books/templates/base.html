@@ -1,0 +1,558 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EgyBooks{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Global CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Dark Brown Theme Inline Styles -->
+    <style>
+        .form-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px; 
+            border-radius: 8px; 
+        }
+
+        button a {
+            color: inherit;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        /* Main background styling - conditional based on authentication */
+        /* Import Anton SC font */
+        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+        
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            color: #5A2A2A;
+            font-family: 'Anton SC', sans-serif;
+        }
+        
+        /* Default background for not logged in (home page) */
+        body:not([data-is-admin="true"]):not(.authenticated) {
+            background-image: url('{% static "images/BackgroundLibrary.avif" %}');
+        }
+        
+        /* Background for logged in users and all other pages */
+        body[data-is-admin="true"], body.authenticated {
+            background-image: url('{% static "images/Background.jpeg" %}');
+        }
+        
+        /* Main content wrapper - solid white background for better readability */
+        main.py-4 {
+            max-width: 1600px; /* Increased from 1000px */
+            margin: 0 auto;
+            padding: 20px 30px 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            margin-bottom: 30px;
+            min-height: calc(100vh - 200px);
+            width: 95%;
+        }
+
+        .navbar-brand {
+            display: inline;
+            color: #5A2A2A !important;
+            font-size: 24px;
+            font-weight: bold;
+            padding-left: 10px;
+            color: #5A2A2A !important;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1030;
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+        }
+
+        .navbar > .container {
+            width: 100%;
+            max-width: none;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .navbar > .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+            background-color: #ffffff;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        body {
+            padding-top: 70px;
+        }
+
+        main.py-4 {
+            margin-top: 30px;
+        }
+        .nav-link {
+            color: #5A2A2A !important;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #fcfaf8;
+            margin: 0 5px;
+        }
+
+        .nav-link:hover {
+            color: #7a3c3c !important;
+            transform: scale(1.05);
+        }
+
+        /* Container styling */
+        .container {
+            background: transparent;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            max-width: 1600px !important; /* Make containers wider */
+            width: 95% !important;
+        }
+        
+        /* Make navbar container solid white for better readability */
+        .navbar .container {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        /* Footer styling */
+        .footer {
+            margin-top: auto;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px 30px 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            margin-bottom: 30px;
+            width: 95%;
+        }
+
+        /* Section title styling */
+        .section-title, .head {
+            text-align: left; 
+            margin-top: 30px;
+            margin-bottom: 25px;
+            font-size: 32px;
+            color: #5A2A2A;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        /* Blue underline accent for section titles */
+        .section-title:after, .head:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background-color: #0d6efd;
+        }
+
+        /* Category badge styling with improved contrast */
+        .badge.bg-primary {
+            background-color: #5A2A2A !important;
+            padding: 6px 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* In stock text */
+        .stock-status {
+            font-size: 0.85rem;
+            color: green;
+        }
+
+        /* Book cards with enhanced contrast */
+        .book-card {
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .book-card-img-wrapper {
+            height: 240px;
+            overflow: hidden;
+        }
+        
+        .book-cover {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* View Details button */
+        .btn.view-details {
+            color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+            background: transparent;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .btn.view-details:hover {
+            background-color: #5A2A2A !important;
+            color: white !important;
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background-color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+            color: white !important;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d1c1c !important;
+            transform: scale(1.05);
+        }
+        
+        /* Edit Profile Button */
+        .edit-profile-card .btn-primary {
+            background-color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+            color: white !important;
+        }
+        
+        /* Search Button Enhancement */
+        .btn-search, .btn-light {
+            background-color: #5A2A2A !important;
+            color: white !important;
+            border-color: #5A2A2A !important;
+        }
+        
+        .btn-search:hover, .btn-light:hover {
+            background-color: #3d1c1c !important;
+        }
+        
+        /* View Button Groups (Grid/List Toggle) */
+        .btn-group .btn-outline-primary {
+            color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+        }
+        
+        .btn-group .btn-outline-primary.active,
+        .btn-group .btn-outline-primary:hover {
+            background-color: #5A2A2A !important;
+            color: white !important;
+        }
+
+        .btn-success, .btn-danger, .btn-info {
+            background-color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 4px;
+            top: 5px;
+        }
+        
+        .btn-success:hover, .btn-danger:hover, .btn-info:hover {
+            background-color: #3d1c1c !important;
+            transform: scale(1.02);
+        }
+
+        /* Form controls with solid white background */
+        .form-control, .form-select {
+            background-color: #ffffff;
+            border: 1px solid #5A2A2A;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #5A2A2A;
+            box-shadow: 0 0 0 0.25rem rgba(90, 42, 42, 0.25);
+        }
+
+        /* Logout button special styling */
+        #Logout, form button.dropdown-item {
+            background-color: #5A2A2A !important;
+            color: #FFFFFF !important;
+        }
+
+        #Logout:hover, form button.dropdown-item:hover {
+            background-color: #7a3c3c !important;
+            transform: scale(1.05);
+        }
+
+        #Logout:active, form button.dropdown-item:active {
+            background-color: #3c1a1a !important;
+            transform: scale(0.95);
+        }
+        
+        /* Footer styling with solid background */
+        footer {
+            background-color: #ffffff !important;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 8px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        footer h5 {
+            color: #5A2A2A;
+            font-weight: bold;
+        }
+
+        footer a {
+            color: #5A2A2A;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #7a3c3c;
+        }
+
+        /* Hero section on home page */
+        .hero-section {
+            background-color: transparent !important;
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .hero-section h1 {
+            color: #5A2A2A;
+            font-weight: bold;
+            font-size: 3rem;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .hero-section p {
+            color: #5A2A2A;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Badges and price display */
+        .badge {
+            background-color: #5A2A2A !important;
+        }
+        
+        /* General button enhancements */
+        .btn-success, .btn-danger, .btn-info {
+            background-color: #5A2A2A !important;
+            border-color: #5A2A2A !important;
+            color: white !important;
+        }
+        
+        .btn-success:hover, .btn-danger:hover, .btn-info:hover {
+            background-color: #3d1c1c !important;
+            transform: scale(1.02);
+        }
+
+        .book-price {
+            color: #5A2A2A;
+            font-weight: bold;
+            font-size: 1.1rem;
+            float: right;
+        }
+
+        /* Book content text with improved visibility */
+        .book-title {
+            color: #3a1a1a;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .author-name {
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Filters sidebar with enhanced visibility */
+        .filters {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e5e5e5;
+        }
+    </style>
+</head>
+<body data-is-admin="{% if user.is_staff %}true{% else %}false{% endif %}" class="{% if user.is_authenticated %}authenticated{% endif %}">
+    <!-- Navigation -->
+    <div class="container-fluid px-0">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid px-0">
+                <a class="navbar-brand" href="{% url 'books:home' %}">
+                    <img src="{% static 'images/logo.png' %}" alt="EgyBooks Logo" height="30" class="d-inline-block align-text-top me-2">
+                    EgyBooks
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'books:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'books:book_list' %}">Books</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'library:my_books' %}">My Library</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <form class="d-flex me-3" action="{% url 'books:search' %}" method="get">
+                    <div class="input-group">
+                        <select class="form-select" name="search_type" style="max-width: 120px;">
+                            <option value="title" selected>Title</option>
+                            <option value="author">Author</option>
+                            <option value="category">Category</option>
+                            <option value="all">All</option>
+                        </select>
+                        <input class="form-control" type="search" name="q" placeholder="Search books..." required>
+                        <button class="btn btn-search" type="submit" style="background-color: #5A2A2A; color: white;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cart:cart' %}">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge bg-light text-dark cart-count" style="display: none;">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:profile' %}">
+                                        <i class="fas fa-user-circle"></i> Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:profile_edit' %}">
+                                        <i class="fas fa-cog"></i> Settings
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'users:logout' %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item" style="background:none; border:none; padding:0; margin:0;">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:register' %}">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        {% if messages %}
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+<footer class="footer mt-auto py-3 bg-white">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="d-flex gap-4 mb-2 justify-content-center">
+                    <a href="{% url 'books:home' %}" class="text-decoration-none">Home</a>
+                    <a href="{% url 'books:book_list' %}" class="text-decoration-none">Browse Books</a>
+                    <a href="{% url 'books:search' %}" class="text-decoration-none">Search</a>
+                </div>
+                <div class="text-center">
+                    <p class="mb-0"><small>&copy; {% now "Y" %} EgyBooks. All rights reserved.</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Global JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

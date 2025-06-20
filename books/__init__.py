@@ -1,0 +1,3 @@
+"""
+Books app initialization.
+""" 

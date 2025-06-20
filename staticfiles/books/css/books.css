@@ -1,0 +1,127 @@
+/* Book card styles */
+.book-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+}
+
+.book-cover {
+    height: 300px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+/* Book detail styles */
+.book-detail-cover {
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.book-info {
+    font-size: 1.1rem;
+}
+
+.book-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Rating styles */
+.rating {
+    color: #ffc107;
+}
+
+.rating-empty {
+    color: #e4e5e9;
+}
+
+/* Review styles */
+.review-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+}
+
+/* Search and filter styles */
+.filter-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.filter-section .form-label {
+    font-weight: 500;
+}
+
+/* Grid/List view toggle */
+.view-toggle .btn {
+    padding: 0.5rem 1rem;
+}
+
+.view-toggle .btn.active {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+/* Stock Badge Styles */
+.card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stock-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px 12px;
+    font-weight: bold;
+    text-align: center;
+    transform: rotate(45deg) translateX(30%) translateY(-30%);
+    transform-origin: top right;
+    width: 200px;
+    font-size: 16px;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stock-badge.out-of-stock {
+    background-color: #dc3545;
+    color: white;
+}
+
+.stock-badge.low-stock {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Add semi-transparent overlay to out-of-stock books */
+.card:has(.stock-badge.out-of-stock) .card-img-top {
+    opacity: 0.7;
+}
+
+/* Disable hover effects for out-of-stock books */
+.card:has(.stock-badge.out-of-stock):hover {
+    transform: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Card hover effects */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+} 

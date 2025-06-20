@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - EgyBooks{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    {% if cart_items %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                            <div class="row mb-3 cart-item" data-item-id="{{ item.id }}">
+                                <div class="col-md-2">
+                                    {% if item.book.cover_image %}
+                                        <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="img-fluid rounded">
+                                    {% else %}
+                                        <img src="{% static 'images/no-cover.jpg' %}" alt="No Cover" class="img-fluid rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">{{ item.book.title }}</h5>
+                                    <p class="text-muted mb-1">by {{ item.book.author.name }}</p>
+                                    <p class="text-muted mb-0">${{ item.book.price }} each</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary decrease-quantity" type="button" data-item-id="{{ item.id }}">-</button>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control text-center quantity-input" 
+                                               value="{{ item.quantity }}" min="1" max="{{ item.book.stock }}" 
+                                               data-item-id="{{ item.id }}" data-price="{{ item.book.price }}" data-max-stock="{{ item.book.stock }}">
+                                        <button class="btn btn-outline-secondary increase-quantity" type="button" 
+                                                data-item-id="{{ item.id }}" {% if item.quantity >= item.book.stock %}disabled{% endif %}>+</button>
+                                    </div>
+                                    {% if item.book.stock <= 5 and item.book.stock > 0 %}
+                                        <small class="text-warning">Only {{ item.book.stock }} left</small>
+                                    {% elif item.book.stock == 0 %}
+                                        <small class="text-danger">Out of Stock</small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <p class="h5 mb-2 item-price">${{ item.total_price }}</p>
+                                    <button class="btn btn-danger btn-sm remove-item" data-item-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Summary</h5>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span id="cart-subtotal">${{ subtotal|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (10%):</span>
+                            <span id="cart-tax">${{ tax|floatformat:2 }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="h5">Total:</span>
+                            <span class="h5" id="cart-total">${{ total|floatformat:2 }}</span>
+                        </div>
+                        <a href="{% url 'cart:checkout' %}" class="btn btn-primary w-100">Proceed to Checkout</a>
+                        <form method="post" action="{% url 'cart:borrow' %}" style="margin-top: 10px;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary w-100">Borrow Books</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Add some books to your cart to continue shopping.</p>
+            <a href="{% url 'books:book_list' %}" class="btn btn-primary">Browse Books</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #5A2A2A; color: white;">
+                <h5 class="modal-title" id="deleteItemModalLabel">Confirm Removal</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this item from your cart?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Remove Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update quantity using AJAX
+    function updateQuantity(itemId, quantity) {
+        fetch(`/cart/update/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update price for this item
+                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                const priceElement = itemElement.querySelector('.item-price');
+                priceElement.textContent = '$' + data.item_total.toFixed(2);
+                
+                // Update cart totals
+                document.getElementById('cart-subtotal').textContent = '$' + data.subtotal.toFixed(2);
+                document.getElementById('cart-tax').textContent = '$' + data.tax.toFixed(2);
+                document.getElementById('cart-total').textContent = '$' + data.total.toFixed(2);
+                
+                // Check stock limitations
+                const input = itemElement.querySelector('.quantity-input');
+                const increaseButton = itemElement.querySelector('.increase-quantity');
+                
+                // Disable + button if max stock reached
+                if (quantity >= input.dataset.maxStock) {
+                    increaseButton.disabled = true;
+                } else {
+                    increaseButton.disabled = false;
+                }
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating cart:', error);
+        });
+    }
+
+    // Remove item
+    function removeItem(itemId) {
+        fetch(`/cart/remove/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove item from DOM
+                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                itemElement.remove();
+                
+                // Update cart totals
+                document.getElementById('cart-subtotal').textContent = '$' + data.subtotal.toFixed(2);
+                document.getElementById('cart-tax').textContent = '$' + data.tax.toFixed(2);
+                document.getElementById('cart-total').textContent = '$' + data.total.toFixed(2);
+                
+                // If cart is empty, refresh the page to show empty cart message
+                if (data.cart_count === 0) {
+                    location.reload();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error removing item:', error);
+        });
+    }
+
+    // Event listeners
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            // Ensure we're parsing the input value correctly as an integer
+            let inputValue = parseInt(this.value, 10);
+            if (isNaN(inputValue)) inputValue = 1;
+            
+            const maxStock = parseInt(this.dataset.maxStock, 10);
+            const quantity = Math.min(Math.max(1, inputValue), maxStock);
+            
+            // Update input value in case it was out of bounds
+            this.value = quantity;
+            
+            updateQuantity(itemId, quantity);
+        });
+    });
+
+    document.querySelectorAll('.decrease-quantity').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            const input = itemElement.querySelector('.quantity-input');
+            const increaseButton = itemElement.querySelector('.increase-quantity');
+            
+            // Ensure we're parsing the input value correctly as an integer
+            let currentValue = parseInt(input.value, 10);
+            if (isNaN(currentValue)) currentValue = 1;
+            
+            if (currentValue > 1) {
+                const newQuantity = currentValue - 1;
+                input.value = newQuantity;
+                
+                // Enable + button when decreasing quantity
+                increaseButton.disabled = false;
+                
+                updateQuantity(itemId, newQuantity);
+            }
+        });
+    });
+
+    document.querySelectorAll('.increase-quantity').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            const input = itemElement.querySelector('.quantity-input');
+            const maxStock = parseInt(input.dataset.maxStock, 10);
+            
+            // Ensure we're parsing the input value correctly as an integer
+            let currentValue = parseInt(input.value, 10);
+            if (isNaN(currentValue)) currentValue = 1;
+            
+            if (currentValue < maxStock) {
+                const newQuantity = currentValue + 1;
+                input.value = newQuantity;
+                
+                // Disable + button if max stock reached
+                if (newQuantity >= maxStock) {
+                    this.disabled = true;
+                }
+                
+                updateQuantity(itemId, newQuantity);
+            }
+        });
+    });
+
+    // Setup delete confirmation modal
+    let itemToRemove = null;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteItemModal'));
+    
+    document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', function() {
+            itemToRemove = this.dataset.itemId;
+            deleteModal.show();
+        });
+    });
+    
+    // Handle the confirm delete button in the modal
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (itemToRemove) {
+            removeItem(itemToRemove);
+            deleteModal.hide();
+            itemToRemove = null;
+        }
+    });
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %} 

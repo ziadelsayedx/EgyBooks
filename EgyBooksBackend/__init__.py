@@ -1,0 +1,3 @@
+"""
+EgyBooksBackend project initialization.
+""" 

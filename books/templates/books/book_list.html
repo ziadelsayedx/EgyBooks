@@ -1,0 +1,784 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Books - EgyBooks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Filters Sidebar -->
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" id="filter-form">
+                    <!-- Genre Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Genre</label>
+                        <select name="category" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Genres</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" {% if current_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Price Range</label>
+                        <div class="input-group">
+                            <input type="number" name="min_price" class="form-control" placeholder="Min" 
+                                   value="{{ min_price }}">
+                            <input type="number" name="max_price" class="form-control" placeholder="Max" 
+                                   value="{{ max_price }}">
+                        </div>
+                    </div>
+
+                    <!-- Sort Options -->
+                    <div class="mb-3">
+                        <label class="form-label">Sort By</label>
+                        <select name="sort" class="form-select" onchange="this.form.submit()">
+                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="title" {% if sort == 'title' %}selected{% endif %}>Title</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Books Grid -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Books</h2>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary active" data-view="grid">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-view="list">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Books Grid View -->
+        <div class="row" id="books-grid">
+            {% for book in books %}
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+                <div class="card book-card h-100">
+                    <div class="book-card-img-wrapper">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                        {% else %}
+                            <img src="{% static 'images/no-cover.jpg' %}" class="card-img-top book-cover" alt="No Cover">
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title book-title">{{ book.title }}</h5>
+                        <p class="card-text text-muted author-name">{{ book.author }}</p>
+                        <div class="book-info mb-2">
+                            <span class="badge bg-primary">{{ book.category.name }}</span>
+                            <span class="book-price">${{ book.price }}</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm w-100 mb-2 add-to-cart" 
+                               data-book-id="{{ book.id }}"
+                               data-book-stock="{{ book.stock }}"
+                               {% if book.stock == 0 %}disabled{% endif %}>
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <div class="stock-status mb-2">
+                            <span class="small {% if book.stock > 5 %}text-success{% elif book.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                {% if book.stock > 5 %}
+                                    In Stock ({{ book.stock }})
+                                {% elif book.stock > 0 %}
+                                    Low Stock ({{ book.stock }} left)
+                                {% else %}
+                                    Out of Stock
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-primary btn-sm view-details" data-book-id="{{ book.id }}">View Details</button>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'books:book_update' book.id %}" class="btn btn-sm btn-outline-secondary" title="Edit Book">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Badge Overlay -->
+                        {% if book.stock == 0 %}
+                        <div class="stock-badge out-of-stock">
+                            OUT OF STOCK
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No books found matching your criteria.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if books.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if books.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ books.previous_page_number }}&category={{ current_category }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for num in books.paginator.page_range %}
+                    {% if books.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&category={{ current_category }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if books.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ books.next_page_number }}&category={{ current_category }}&min_price={{ min_price }}&max_price={{ max_price }}&sort={{ sort }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Book Details Modal -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookDetailsModalLabel">Book Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <img id="modalBookCover" src="" alt="Book Cover" class="img-fluid rounded book-modal-cover">
+                    </div>
+                    <div class="col-md-8">
+                        <h4 id="modalBookTitle"></h4>
+                        <p class="text-muted">By <span id="modalBookAuthor"></span></p>
+                        <p><strong>Category:</strong> <span id="modalBookCategory"></span></p>
+                        <p><strong>Price:</strong> $<span id="modalBookPrice"></span></p>
+                        <p><strong>ISBN:</strong> <span id="modalBookIsbn"></span></p>
+                        <p><strong>Publication Date:</strong> <span id="modalBookPubDate"></span></p>
+                        <p><strong>Pages:</strong> <span id="modalBookPages"></span></p>
+                        <p><strong>Language:</strong> <span id="modalBookLanguage"></span></p>
+                        <p><strong>Availability:</strong> <span id="modalBookAvailability"></span></p>
+                        <hr>
+                        <h5>Description</h5>
+                        <p id="modalBookDescription"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="adminActions" class="me-auto" style="display: none;">
+                    <a id="editBookLink" href="#" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit Book
+                    </a>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="addToCartBtn" type="button" class="btn btn-primary" data-book-id="">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Track cart items and their quantities
+    let cartItems = {};
+    
+    // Fetch current cart content when page loads
+    fetchCartContents();
+    
+    function fetchCartContents() {
+        // Clear debug indicator for better logging
+        console.clear();
+        console.log('Fetching cart contents...');
+        
+        fetch('/cart/api/contents/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Cart contents received:', data);
+                cartItems = {};
+                
+                // Handle different response formats
+                if (data.items) {
+                    data.items.forEach(item => {
+                        cartItems[item.book_id] = item.quantity;
+                        console.log(`Book ID ${item.book_id} has ${item.quantity} in cart (stock: ${item.stock})`);
+                    });
+                } else if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        cartItems[item.book_id] = item.quantity;
+                    });
+                } else if (typeof data === 'object') {
+                    // If data is directly the cart items object
+                    Object.keys(data).forEach(bookId => {
+                        if (data[bookId].quantity) {
+                            cartItems[bookId] = data[bookId].quantity;
+                        } else if (typeof data[bookId] === 'number') {
+                            cartItems[bookId] = data[bookId];
+                        }
+                    });
+                }
+                
+                console.log('Processed cart items:', cartItems);
+                updateAddToCartButtons();
+            })
+            .catch(error => {
+                console.error('Error fetching cart contents:', error);
+                
+                // Try alternative endpoint if first one fails
+                console.log('Trying alternative endpoint...');
+                fetch('/api/cart/contents/')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Alternative endpoint cart data:', data);
+                        // Process data similar to above
+                        processCartData(data);
+                    })
+                    .catch(altError => {
+                        console.error('Error with alternative endpoint:', altError);
+                    });
+            });
+    }
+    
+    function processCartData(data) {
+        cartItems = {};
+        
+        if (data.items) {
+            data.items.forEach(item => {
+                cartItems[item.book_id] = item.quantity;
+            });
+        } else if (Array.isArray(data)) {
+            data.forEach(item => {
+                cartItems[item.book_id] = item.quantity;
+            });
+        } else if (typeof data === 'object') {
+            Object.keys(data).forEach(bookId => {
+                if (data[bookId].quantity) {
+                    cartItems[bookId] = data[bookId].quantity;
+                } else if (typeof data[bookId] === 'number') {
+                    cartItems[bookId] = data[bookId];
+                }
+            });
+        }
+        
+        updateAddToCartButtons();
+    }
+    
+    // View switching
+    const gridView = document.getElementById('books-grid');
+    const viewButtons = document.querySelectorAll('[data-view]');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            if (view === 'list') {
+                gridView.classList.remove('row');
+                gridView.classList.add('list-view');
+            } else {
+                gridView.classList.remove('list-view');
+                gridView.classList.add('row');
+            }
+        });
+    });
+    
+    // Book Details Modal Functionality
+    const bookDetailsModal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
+    const viewDetailsButtons = document.querySelectorAll('.view-details');
+    
+    viewDetailsButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.getAttribute('data-book-id');
+            fetchBookDetails(bookId);
+        });
+    });
+    
+    function fetchBookDetails(bookId) {
+        fetch(`/api/book/${bookId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                populateBookModal(data);
+                bookDetailsModal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching book details:', error);
+                alert('Failed to load book details. Please try again.');
+            });
+    }
+    
+    function populateBookModal(book) {
+        // Set book cover
+        const coverImg = document.getElementById('modalBookCover');
+        coverImg.src = book.cover_image ? book.cover_image : "{% static 'images/no-cover.jpg' %}";
+        coverImg.alt = book.title;
+        
+        // Set text details
+        document.getElementById('modalBookTitle').textContent = book.title;
+        document.getElementById('modalBookAuthor').textContent = book.author_name;
+        document.getElementById('modalBookCategory').textContent = book.category_name;
+        document.getElementById('modalBookPrice').textContent = book.price;
+        document.getElementById('modalBookIsbn').textContent = book.isbn;
+        document.getElementById('modalBookPubDate').textContent = book.publication_date;
+        document.getElementById('modalBookPages').textContent = book.pages;
+        document.getElementById('modalBookLanguage').textContent = book.language;
+        
+        // Set availability with appropriate styling
+        const availabilityElement = document.getElementById('modalBookAvailability');
+        if (book.stock > 5) {
+            availabilityElement.textContent = `In Stock (${book.stock} available)`;
+            availabilityElement.className = 'text-success';
+        } else if (book.stock > 0) {
+            availabilityElement.textContent = `Low Stock (${book.stock} left)`;
+            availabilityElement.className = 'text-warning';
+        } else {
+            availabilityElement.textContent = 'Out of Stock';
+            availabilityElement.className = 'text-danger';
+        }
+        
+        document.getElementById('modalBookDescription').textContent = book.description;
+        
+        // Configure Add to Cart button
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        addToCartBtn.setAttribute('data-book-id', book.id);
+        addToCartBtn.setAttribute('data-book-stock', book.stock);
+        
+        // Check if item is already in cart at max capacity
+        const inCart = cartItems[book.id] || 0;
+        
+        if (book.stock === 0) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Out of Stock';
+        } else if (inCart >= book.stock) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Maximum in Cart';
+        } else {
+            addToCartBtn.disabled = false;
+            addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+        }
+        
+        // Show/hide admin actions based on user role
+        const adminActions = document.getElementById('adminActions');
+        const editBookLink = document.getElementById('editBookLink');
+        
+        // Check if user is staff (admin)
+        const isAdmin = document.body.getAttribute('data-is-admin') === 'true';
+        
+        if (isAdmin) {
+            adminActions.style.display = 'block';
+            editBookLink.href = `/edit/${book.id}/`;
+        } else {
+            adminActions.style.display = 'none';
+        }
+    }
+
+    // Add to cart functionality
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.dataset.bookId;
+            const bookStock = parseInt(this.dataset.bookStock) || 0;
+            const inCart = parseInt(cartItems[bookId]) || 0;
+            
+            console.log(`Adding to cart - Book ID: ${bookId}, Stock: ${bookStock}, In Cart: ${inCart}`);
+            
+            // Check if adding would exceed stock
+            if (inCart >= bookStock) {
+                showNotification('Cannot add more of this book. Maximum stock reached in cart.', 'warning');
+                return;
+            }
+            
+            addToCart(bookId, 1);
+        });
+    });
+    
+    // Add to Cart functionality from modal
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            const bookId = this.getAttribute('data-book-id');
+            const bookStock = parseInt(this.getAttribute('data-book-stock')) || 0;
+            const inCart = parseInt(cartItems[bookId]) || 0;
+            
+            console.log(`Modal adding to cart - Book ID: ${bookId}, Stock: ${bookStock}, In Cart: ${inCart}`);
+            
+            // Check if adding would exceed stock
+            if (inCart >= bookStock) {
+                showNotification('Cannot add more of this book. Maximum stock reached in cart.', 'warning');
+                return;
+            }
+            
+            addToCart(bookId, 1);
+        });
+    }
+    
+    // Refresh cart data every 30 seconds to keep it updated
+    setInterval(fetchCartContents, 30000);
+    
+    function updateAddToCartButtons() {
+        console.log('Updating add-to-cart buttons with cart items:', cartItems);
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            const bookId = button.dataset.bookId;
+            const bookStock = parseInt(button.dataset.bookStock) || 0;
+            const inCart = parseInt(cartItems[bookId]) || 0;
+            
+            console.log(`Book ID: ${bookId}, Stock: ${bookStock}, In Cart: ${inCart}`);
+            
+            if (bookStock === 0) {
+                button.disabled = true;
+                button.title = 'Out of stock';
+            } else if (inCart >= bookStock) {
+                button.disabled = true;
+                button.title = 'Maximum stock reached in cart';
+                // Change button appearance to show it's maxed out
+                button.classList.add('btn-secondary');
+                button.classList.remove('btn-primary');
+            } else {
+                button.disabled = false;
+                button.title = 'Add to cart';
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-secondary');
+            }
+        });
+        
+        // Update modal button if visible
+        const modalButton = document.getElementById('addToCartBtn');
+        if (modalButton && modalButton.getAttribute('data-book-id')) {
+            const bookId = modalButton.getAttribute('data-book-id');
+            const bookStock = parseInt(modalButton.getAttribute('data-book-stock')) || 0;
+            const inCart = parseInt(cartItems[bookId]) || 0;
+            
+            console.log(`Modal - Book ID: ${bookId}, Stock: ${bookStock}, In Cart: ${inCart}`);
+            
+            if (bookStock === 0) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = '<i class="fas fa-cart-plus"></i> Out of Stock';
+            } else if (inCart >= bookStock) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = '<i class="fas fa-cart-plus"></i> Maximum in Cart';
+                modalButton.classList.add('btn-secondary');
+                modalButton.classList.remove('btn-primary');
+            } else {
+                modalButton.disabled = false;
+                modalButton.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+                modalButton.classList.add('btn-primary');
+                modalButton.classList.remove('btn-secondary');
+            }
+        }
+    }
+    
+    function addToCart(bookId, quantity) {
+        // Get book stock from the button that was clicked
+        // Need to look for either grid view buttons or modal button
+        let bookStock = 0;
+        const gridButton = document.querySelector(`.add-to-cart[data-book-id="${bookId}"]`);
+        const modalButton = document.getElementById('addToCartBtn');
+        
+        if (gridButton) {
+            bookStock = parseInt(gridButton.dataset.bookStock) || 0;
+        } else if (modalButton && modalButton.getAttribute('data-book-id') === bookId) {
+            bookStock = parseInt(modalButton.getAttribute('data-book-stock')) || 0;
+        }
+        
+        const inCart = parseInt(cartItems[bookId]) || 0;
+        
+        console.log('---------- ADD TO CART LOGIC ----------');
+        console.log(`Book ID: ${bookId}`);
+        console.log(`Book Stock: ${bookStock}`);
+        console.log(`Current in Cart: ${inCart}`);
+        console.log(`Trying to add: ${quantity}`);
+        console.log(`Total would be: ${inCart + quantity}`);
+        console.log(`Would exceed stock? ${(inCart + quantity) > bookStock}`);
+        console.log('--------------------------------------');
+        
+        // Double-check if adding would exceed stock
+        if (inCart + quantity > bookStock) {
+            showNotification(`Cannot add more of this book to your cart. You already have ${inCart} in your cart and only ${bookStock} are available.`, 'warning');
+            return;
+        }
+        
+        fetch(`/cart/add/${bookId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `quantity=${quantity}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update our cart tracking
+                cartItems[bookId] = (parseInt(cartItems[bookId]) || 0) + quantity;
+                console.log(`Updated cart items for ${bookId}:`, cartItems[bookId]);
+                updateAddToCartButtons();
+                
+                // Update cart counter in the navbar
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                    cartCount.style.display = data.cart_count > 0 ? 'inline' : 'none';
+                }
+                
+                // Update cart totals immediately if we're on the cart page
+                const subtotalElement = document.getElementById('cart-subtotal');
+                const taxElement = document.getElementById('cart-tax');
+                const totalElement = document.getElementById('cart-total');
+                
+                if (subtotalElement && data.subtotal !== undefined) {
+                    subtotalElement.textContent = `$${data.subtotal.toFixed(2)}`;
+                }
+                
+                if (taxElement && data.tax !== undefined) {
+                    taxElement.textContent = `$${data.tax.toFixed(2)}`;
+                }
+                
+                if (totalElement && data.total !== undefined) {
+                    totalElement.textContent = `$${data.total.toFixed(2)}`;
+                }
+                
+                // No need to refresh cart data as we've updated everything directly
+                // This was causing the delay in updating the UI
+                // setTimeout(fetchCartContents, 500);
+                
+                showNotification('Book added to cart successfully!', 'success');
+                if (typeof bookDetailsModal !== 'undefined' && bookDetailsModal._isShown) {
+                    bookDetailsModal.hide();
+                }
+            } else {
+                showNotification(data.message || 'Error adding book to cart', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding book to cart:', error);
+            showNotification('Error adding book to cart', 'danger');
+        });
+    }
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show notification-toast`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* List view styles */
+.list-view .col-md-4 {
+    width: 100%;
+    max-width: 100%;
+}
+
+.list-view .book-card {
+    display: flex;
+    flex-direction: row;
+    height: auto;
+}
+
+.list-view .book-card-img-wrapper {
+    width: 150px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.list-view .book-cover {
+    width: 100%;
+    height: 200px;
+}
+
+.list-view .card-body {
+    flex: 1;
+}
+
+/* Book card styling */
+.book-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.book-card-img-wrapper {
+    height: 250px;
+    overflow: hidden;
+}
+
+.book-cover {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.author-name {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.book-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.book-price {
+    font-weight: 600;
+    color: #333;
+}
+
+.stock-status {
+    height: 1.2em;
+    font-size: 0.8rem;
+}
+
+.add-to-cart {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Stock badge overlay */
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.out-of-stock {
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+}
+
+/* Modal styling */
+.book-modal-cover {
+    max-height: 300px;
+    object-fit: contain;
+}
+
+/* Toast notification */
+.notification-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1090;
+    min-width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: slide-in 0.3s ease-out;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,102 @@
+.profile-header {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info {
+    margin-left: 2rem;
+}
+
+.profile-stats {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form .form-control {
+    padding: 0.75rem 1rem;
+}
+
+.auth-form .btn {
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.activity-item {
+    padding: 1rem;
+    border-left: 3px solid #2c3e50;
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0 10px 10px 0;
+}
+
+.activity-time {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.settings-section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section h3 {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        text-align: center;
+    }
+
+    .profile-info {
+        margin-left: 0;
+        margin-top: 1.5rem;
+    }
+
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+    }
+} 

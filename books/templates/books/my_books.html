@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Books - EgyBooks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Filter Books</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{% url 'books:my_books' %}">
+                    <!-- Status Filter -->
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="status-all" name="status" value="all" 
+                                   {% if not request.GET.status %}checked{% endif %}>
+                            <label class="form-check-label" for="status-all">All</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="status-unread" name="status" value="unread"
+                                   {% if 'unread' in request.GET.status %}checked{% endif %}>
+                            <label class="form-check-label" for="status-unread">Unread</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="status-reading" name="status" value="reading"
+                                   {% if 'reading' in request.GET.status %}checked{% endif %}>
+                            <label class="form-check-label" for="status-reading">Reading</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="status-completed" name="status" value="completed"
+                                   {% if 'completed' in request.GET.status %}checked{% endif %}>
+                            <label class="form-check-label" for="status-completed">Completed</label>
+                        </div>
+                    </div>
+
+                    <!-- Sort Options -->
+                    <div class="mb-3">
+                        <label for="sort" class="form-label">Sort By</label>
+                        <select class="form-select" id="sort" name="sort">
+                            <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title</option>
+                            <option value="author" {% if request.GET.sort == 'author' %}selected{% endif %}>Author</option>
+                            <option value="purchase_date" {% if request.GET.sort == 'purchase_date' %}selected{% endif %}>Purchase Date</option>
+                            <option value="last_read" {% if request.GET.sort == 'last_read' %}selected{% endif %}>Last Read</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">My Books</h2>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary active" data-view="grid">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-view="list">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid View -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="grid-view">
+            {% for book in books %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if book.image %}
+                            <img src="{{ book.image.url }}" alt="{{ book.title }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'images/no-cover.jpg' %}" alt="No Cover" class="card-img-top" style="height: 300px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-muted">by {{ book.author }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-primary">{{ book.get_status_display }}</span>
+                                <small class="text-muted">Purchased {{ book.purchase_date|date:"M d, Y" }}</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'books:book_detail' book.id %}" class="btn btn-primary flex-grow-1">View Details</a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-book-id="{{ book.id }}" data-status="reading">
+                                            <i class="fas fa-book-reader"></i> Mark as Reading
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-book-id="{{ book.id }}" data-status="completed">
+                                            <i class="fas fa-check-circle"></i> Mark as Completed
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" data-book-id="{{ book.id }}" data-action="remove">
+                                            <i class="fas fa-trash"></i> Remove from Library
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <p class="mb-0">You haven't purchased any books yet. <a href="{% url 'books:book_list' %}">Browse our collection</a> to find your next read!</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- List View -->
+        <div class="list-group shadow-sm d-none" id="list-view">
+            {% for book in books %}
+                <div class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            {% if book.image %}
+                                <img src="{{ book.image.url }}" alt="{{ book.title }}" style="width: 80px; height: 120px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'images/no-cover.jpg' %}" alt="No Cover" style="width: 80px; height: 120px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">{{ book.title }}</h5>
+                            <p class="mb-1 text-muted">by {{ book.author }}</p>
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-primary">{{ book.get_status_display }}</span>
+                                <small class="text-muted">Purchased {{ book.purchase_date|date:"M d, Y" }}</small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group">
+                                <a href="{% url 'books:book_detail' book.id %}" class="btn btn-primary">View Details</a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-book-id="{{ book.id }}" data-status="reading">
+                                            <i class="fas fa-book-reader"></i> Mark as Reading
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-book-id="{{ book.id }}" data-status="completed">
+                                            <i class="fas fa-check-circle"></i> Mark as Completed
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" data-book-id="{{ book.id }}" data-action="remove">
+                                            <i class="fas fa-trash"></i> Remove from Library
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if books.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if books.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ books.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in books.paginator.page_range %}
+                        {% if books.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if books.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ books.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-img-top {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.btn-primary {
+    padding: 0.6rem 1.2rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+}
+
+.dropdown-item:active {
+    background-color: #0d6efd;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View switching
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const viewButtons = document.querySelectorAll('[data-view]');
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            if (view === 'grid') {
+                gridView.classList.remove('d-none');
+                listView.classList.add('d-none');
+            } else {
+                gridView.classList.add('d-none');
+                listView.classList.remove('d-none');
+            }
+        });
+    });
+
+    // Status update
+    document.querySelectorAll('[data-status]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const bookId = this.dataset.bookId;
+            const status = this.dataset.status;
+
+            fetch('/api/library/update_status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    book: bookId,
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showMessage('Error updating book status', 'danger');
+                }
+            })
+            .catch(error => {
+                showMessage('Error updating book status', 'danger');
+            });
+        });
+    });
+
+    // Remove book
+    document.querySelectorAll('[data-action="remove"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to remove this book from your library?')) {
+                return;
+            }
+
+            const bookId = this.dataset.bookId;
+
+            fetch('/api/library/remove_book/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    book: bookId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showMessage('Error removing book from library', 'danger');
+                }
+            })
+            .catch(error => {
+                showMessage('Error removing book from library', 'danger');
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

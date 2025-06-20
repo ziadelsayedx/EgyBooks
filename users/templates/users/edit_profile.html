@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - EgyBooks{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-profile-section {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 2rem 1rem;
+}
+.edit-profile-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.03);
+    padding: 2.5rem 2rem;
+    background: #fff;
+    max-width: 800px;
+    width: 100%;
+}
+.edit-profile-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+.edit-profile-subtitle {
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+}
+.edit-profile-card .form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+.edit-profile-card .form-control {
+    border-radius: 8px;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.edit-profile-card .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+.edit-profile-card .form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+.edit-profile-card .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+.edit-profile-card .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.edit-profile-card .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.edit-profile-card .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    margin-right: 0.75rem;
+}
+.edit-profile-card .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+.edit-profile-card img.img-thumbnail {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 0.25rem;
+    background-color: #fff;
+    max-width: 150px;
+    height: auto;
+}
+.edit-profile-card .invalid-feedback {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+.edit-profile-card .alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+.edit-profile-card .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+.edit-profile-card .form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+.edit-profile-card .profile-picture-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+.edit-profile-card .profile-picture-preview {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.edit-profile-card .profile-picture-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.edit-profile-card .profile-picture-preview .preview-placeholder {
+    color: #6c757d;
+    text-align: center;
+    padding: 1rem;
+}
+.edit-profile-card .profile-picture-upload {
+    flex: 1;
+}
+.edit-profile-card .custom-file-label {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.edit-profile-card .custom-file-label:hover {
+    background-color: #e9ecef;
+}
+.edit-profile-card .upload-requirements {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+.edit-profile-card .upload-requirements ul {
+    list-style-type: none;
+    padding-left: 0.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+.edit-profile-card .upload-requirements li {
+    margin-bottom: 0.25rem;
+}
+.edit-profile-card .upload-requirements li:before {
+    content: "•";
+    color: #6c757d;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+.edit-profile-card .image-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+@media (max-width: 768px) {
+    .edit-profile-section {
+        padding: 1rem;
+    }
+    .edit-profile-card {
+        padding: 1.5rem 1rem;
+    }
+    .edit-profile-title {
+        font-size: 1.8rem;
+    }
+    .edit-profile-subtitle {
+        font-size: 1rem;
+    }
+    .edit-profile-card .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .edit-profile-card .btn-secondary {
+        margin-right: 0;
+    }
+    .edit-profile-card .profile-picture-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .edit-profile-card .profile-picture-preview {
+        width: 120px;
+        height: 120px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-section">
+    <div class="edit-profile-card">
+        <div class="edit-profile-title">Edit Profile</div>
+        <div class="edit-profile-subtitle">Update your personal information</div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate id="editProfileForm">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_first_name" class="form-label">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.first_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_last_name" class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.last_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Email Address</label>
+                <input type="email" name="email" id="id_email" value="{{ form.email.value|default:'' }}" class="form-control{% if form.email.errors %} is-invalid{% endif %}" required>
+                {% if form.email.errors %}
+                    <div class="invalid-feedback" style="display:block;">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div id="email-feedback" class="invalid-feedback" style="display:none;"></div>
+                {% endif %}
+                <div class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_phone_number" class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.phone_number.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Enter your contact number (optional)</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_address" class="form-label">Address</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.address.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Enter your full address (optional)</div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">Profile Picture</label>
+                <div class="profile-picture-section">
+                    <div class="profile-picture-preview" id="imagePreview">
+                        {% if form.instance.profile_picture %}
+                            <img src="{{ form.instance.profile_picture.url }}" alt="Current Profile Picture" class="img-fluid" id="previewImage">
+                        {% else %}
+                            <div class="preview-placeholder">
+                                <i class="fas fa-user fa-3x mb-2"></i>
+                                <div>No image selected</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-picture-upload">
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.profile_picture.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="upload-requirements">
+                            <small>Image requirements:</small>
+                            <ul>
+                                <li>Maximum file size: 5MB</li>
+                                <li>Allowed formats: JPG, JPEG, PNG, GIF</li>
+                                <li>Maximum dimensions: 2000x2000 pixels</li>
+                            </ul>
+                        </div>
+                        <div class="image-error" id="imageError"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end mt-4">
+                <a href="{% url 'users:profile' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="submitButton">Save Changes</button>
+                <div id="loadingIndicator" style="display:none; margin-top: 10px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span>Updating profile...</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const errorDiv = document.getElementById('imageError');
+    const file = input.files[0];
+    
+    // Reset error message
+    errorDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    
+    if (file) {
+        // Check file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            errorDiv.textContent = 'Image file too large ( > 5MB )';
+            errorDiv.style.display = 'block';
+            input.value = '';
+            return;
+        }
+        
+        // Check file type
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            errorDiv.textContent = 'Invalid file type. Please upload JPG, PNG, or GIF';
+            errorDiv.style.display = 'block';
+            input.value = '';
+            return;
+        }
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'img-fluid';
+            img.id = 'previewImage';
+            
+            // Clear previous content
+            preview.innerHTML = '';
+            preview.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+    } else {
+        // Reset to default state
+        preview.innerHTML = `
+            <div class="preview-placeholder">
+                <i class="fas fa-user fa-3x mb-2"></i>
+                <div>No image selected</div>
+            </div>
+        `;
+    }
+}
+
+// Email format regex (require valid TLD)
+function validateEmailFormat(email) {
+    // Must have something@something.domain (2+ chars)
+    const re = /^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
+}
+
+// AJAX check for duplicate email
+async function checkDuplicateEmail(email) {
+    // Placeholder: Implement AJAX call to backend endpoint for real duplicate check
+    // For now, always return false (no duplicate)
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('id_email');
+    const feedback = document.getElementById('email-feedback');
+    // Only add JS validation if there are no server-side errors
+    if (emailInput && feedback) {
+        emailInput.addEventListener('input', async function() {
+            // If server-side error exists, do nothing
+            if (document.querySelector('.invalid-feedback[style*="display:block;"]')) {
+                feedback.style.display = 'none';
+                return;
+            }
+            const email = emailInput.value.trim();
+            feedback.style.display = 'none';
+            emailInput.classList.remove('is-invalid');
+            if (!validateEmailFormat(email)) {
+                feedback.textContent = 'Enter a valid email address with a proper domain (e.g. .com, .net, .org).';
+                feedback.style.display = 'block';
+                emailInput.classList.add('is-invalid');
+                return;
+            }
+            // Simulate AJAX duplicate check
+            const isDuplicate = await checkDuplicateEmail(email);
+            if (isDuplicate) {
+                feedback.textContent = 'This email is already registered.';
+                feedback.style.display = 'block';
+                emailInput.classList.add('is-invalid');
+                return;
+            }
+        });
+    }
+
+    // Form submission handling
+    const form = document.getElementById('editProfileForm');
+    const submitButton = document.getElementById('submitButton');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (form) {
+        form.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            loadingIndicator.style.display = 'block';
+        });
+    }
+});
+</script>
+{% endblock %} 

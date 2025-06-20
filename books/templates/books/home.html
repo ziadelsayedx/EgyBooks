@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - EgyBooks{% endblock %}
+
+{% block content %}
+<div class="container bg-white p-4 rounded shadow">
+
+
+{% if user.is_authenticated and user.is_staff %}
+<div class="text-end position-relative mb-3">
+    <a href="{% url 'books:book_create' %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Book
+    </a>
+</div>
+{% endif %}
+
+{% if has_books %}
+<!-- Featured Books Section -->
+<section class="featured-books py-3">
+    <div class="container-fluid px-4">
+        <h2 class="section-title mb-4" style="color: #3a1a1a; border-bottom: 3px solid #5A2A2A; display: inline-block; padding-bottom: 5px;">Featured Books</h2>
+        <div class="row">
+            {% for book in featured_books %}
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-4">
+                <div class="card book-card">
+                    <div class="book-card-img-wrapper">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                        {% else %}
+                            <img src="{% static 'images/no-cover.jpg' %}" class="card-img-top book-cover" alt="No Cover">
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title book-title text-truncate">{{ book.title }}</h5>
+                        <p class="card-text text-muted author-name">{{ book.author.name }}</p>
+                        <div class="book-info mb-2">
+                            <span class="badge bg-primary">{{ book.category.name }}</span>
+                            <span class="book-price">${{ book.price }}</span>
+                        </div>
+                        <div class="stock-status mb-2">
+                            <span class="small {% if book.stock > 5 %}text-success{% elif book.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                {% if book.stock > 5 %}
+                                    In Stock ({{ book.stock }})
+                                {% elif book.stock > 0 %}
+                                    Low Stock ({{ book.stock }} left)
+                                {% else %}
+                                    Out of Stock
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-auto">
+                            <button class="btn btn-outline-primary view-details" data-book-id="{{ book.id }}">View Details</button>
+                            {% if user.is_staff %}
+                                <a href="{% url 'books:book_update' book.id %}" class="btn btn-sm btn-outline-secondary" title="Edit Book">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+
+</div>
+
+<!-- Book Details Modal -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookDetailsModalLabel">Book Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <img id="modalBookCover" src="" alt="Book Cover" class="img-fluid rounded book-modal-cover">
+                    </div>
+                    <div class="col-md-8">
+                        <h4 id="modalBookTitle"></h4>
+                        <p class="text-muted">By <span id="modalBookAuthor"></span></p>
+                        <p><strong>Category:</strong> <span id="modalBookCategory"></span></p>
+                        <p><strong>Price:</strong> $<span id="modalBookPrice"></span></p>
+                        <p><strong>ISBN:</strong> <span id="modalBookIsbn"></span></p>
+                        <p><strong>Publication Date:</strong> <span id="modalBookPubDate"></span></p>
+                        <p><strong>Pages:</strong> <span id="modalBookPages"></span></p>
+                        <p><strong>Language:</strong> <span id="modalBookLanguage"></span></p>
+                        <p><strong>Availability:</strong> <span id="modalBookAvailability"></span></p>
+                        <hr>
+                        <h5>Description</h5>
+                        <p id="modalBookDescription"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="adminActions" class="me-auto" style="display: none;">
+                    <a id="editBookLink" href="#" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit Book
+                    </a>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="addToCartBtn" type="button" class="btn btn-primary" data-book-id="">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    background-color: #007bff;
+    color: white;
+    padding: 100px 0;
+}
+
+.hero-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hero-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.hero-image:hover {
+    transform: scale(1.05);
+}
+
+.section-title {
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #007bff;
+}
+
+/* Book card styling */
+.book-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.book-card-img-wrapper {
+    height: 250px;
+    overflow: hidden;
+}
+
+.book-cover {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.author-name {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.book-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.book-price {
+    font-weight: 600;
+    color: #333;
+}
+
+.stock-status {
+    height: 1.2em;
+    font-size: 0.8rem;
+}
+
+/* Modal styling */
+.book-modal-cover {
+    max-height: 300px;
+    object-fit: contain;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heroImage = document.querySelector('.hero-image');
+    if (heroImage) {
+        heroImage.addEventListener('error', function() {
+            this.src = this.dataset.fallback;
+        });
+    }
+    
+    // Book Details Modal Functionality
+    const bookDetailsModal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
+    const viewDetailsButtons = document.querySelectorAll('.view-details');
+    
+    viewDetailsButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.getAttribute('data-book-id');
+            fetchBookDetails(bookId);
+        });
+    });
+    
+    function fetchBookDetails(bookId) {
+        fetch(`/api/book/${bookId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                populateBookModal(data);
+                bookDetailsModal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching book details:', error);
+                alert('Failed to load book details. Please try again.');
+            });
+    }
+    
+    function populateBookModal(book) {
+        // Set book cover
+        const coverImg = document.getElementById('modalBookCover');
+        coverImg.src = book.cover_image ? book.cover_image : "{% static 'images/no-cover.jpg' %}";
+        coverImg.alt = book.title;
+        
+        // Set text details
+        document.getElementById('modalBookTitle').textContent = book.title;
+        document.getElementById('modalBookAuthor').textContent = book.author_name;
+        document.getElementById('modalBookCategory').textContent = book.category_name;
+        document.getElementById('modalBookPrice').textContent = book.price;
+        document.getElementById('modalBookIsbn').textContent = book.isbn;
+        document.getElementById('modalBookPubDate').textContent = book.publication_date;
+        document.getElementById('modalBookPages').textContent = book.pages;
+        document.getElementById('modalBookLanguage').textContent = book.language;
+        
+        // Set availability with appropriate styling
+        const availabilityElement = document.getElementById('modalBookAvailability');
+        if (book.stock > 5) {
+            availabilityElement.textContent = `In Stock (${book.stock} available)`;
+            availabilityElement.className = 'text-success';
+        } else if (book.stock > 0) {
+            availabilityElement.textContent = `Low Stock (${book.stock} left)`;
+            availabilityElement.className = 'text-warning';
+        } else {
+            availabilityElement.textContent = 'Out of Stock';
+            availabilityElement.className = 'text-danger';
+        }
+        
+        document.getElementById('modalBookDescription').textContent = book.description;
+        
+        // Configure Add to Cart button
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        addToCartBtn.setAttribute('data-book-id', book.id);
+        
+        if (book.stock === 0) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.textContent = 'Out of Stock';
+        } else {
+            addToCartBtn.disabled = false;
+            addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+        }
+        
+        // Show/hide admin actions based on user role
+        const adminActions = document.getElementById('adminActions');
+        const editBookLink = document.getElementById('editBookLink');
+        
+        // Check if user is staff (admin)
+        const isAdmin = document.body.getAttribute('data-is-admin') === 'true';
+        
+        if (isAdmin) {
+            adminActions.style.display = 'block';
+            editBookLink.href = `/edit/${book.id}/`;
+        } else {
+            adminActions.style.display = 'none';
+        }
+    }
+    
+    // Add to Cart functionality from modal
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            const bookId = this.getAttribute('data-book-id');
+            addToCart(bookId, 1);
+        });
+    }
+    
+    function addToCart(bookId, quantity) {
+        fetch(`/cart/add/${bookId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showNotification('Book added to cart successfully!', 'success');
+                
+                // Update cart counter in the navbar
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                    cartCount.style.display = data.cart_count > 0 ? 'inline' : 'none';
+                }
+                
+                // Update cart totals if we're on the cart page
+                const subtotalElement = document.getElementById('cart-subtotal');
+                const taxElement = document.getElementById('cart-tax');
+                const totalElement = document.getElementById('cart-total');
+                
+                if (subtotalElement && data.subtotal !== undefined) {
+                    subtotalElement.textContent = `$${data.subtotal.toFixed(2)}`;
+                }
+                
+                if (taxElement && data.tax !== undefined) {
+                    taxElement.textContent = `$${data.tax.toFixed(2)}`;
+                }
+                
+                if (totalElement && data.total !== undefined) {
+                    totalElement.textContent = `$${data.total.toFixed(2)}`;
+                }
+                
+                // Close modal
+                if (bookDetailsModal) {
+                    bookDetailsModal.hide();
+                }
+            } else {
+                showNotification(data.message || 'Error adding book to cart', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding book to cart:', error);
+            showNotification('Error adding book to cart', 'danger');
+        });
+    }
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show notification-toast`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %} 

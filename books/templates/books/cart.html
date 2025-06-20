@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - EgyBooks{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'books/css/books.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container bg-white p-4 rounded shadow">
+    <h1 class="mb-4" style="color: #3a1a1a; border-bottom: 3px solid #5A2A2A; display: inline-block; padding-bottom: 5px;">Shopping Cart</h1>
+
+    {% if cart_items %}
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4" style="border: 1px solid #e5e5e5; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;">
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                            <div class="cart-item mb-4 pb-4 border-bottom" data-item-id="{{ item.id }}">
+                                <div class="row align-items-center">
+                                    <!-- Book Cover -->
+                                    <div class="col-md-2">
+                                        {% if item.book.image %}
+                                            <img src="{{ item.book.image.url }}" alt="{{ item.book.title }}" class="img-fluid rounded">
+                                        {% else %}
+                                            <img src="{% static 'books/images/no-cover.jpg' %}" alt="No Cover" class="img-fluid rounded">
+                                        {% endif %}
+                                    </div>
+                                    <!-- Book Details -->
+                                    <div class="col-md-4">
+                                        <h5 class="mb-1">
+                                            <a href="{% url 'books:book_detail' item.book.id %}" class="text-decoration-none">
+                                                {{ item.book.title }}
+                                            </a>
+                                        </h5>
+                                        <p class="text-muted mb-0">by {{ item.book.author }}</p>
+                                    </div>
+                                    <!-- Quantity -->
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <button class="btn btn-outline-secondary decrease-quantity" type="button">-</button>
+                                            <input type="number" class="form-control text-center update-quantity" 
+                                                   value="{{ item.quantity }}" min="1" max="{{ item.book.quantity }}"
+                                                   data-item-id="{{ item.id }}">
+                                            <button class="btn btn-outline-secondary increase-quantity" type="button">+</button>
+                                        </div>
+                                    </div>
+                                    <!-- Price and Remove -->
+                                    <div class="col-md-3 text-end">
+                                        <p class="mb-1">${{ item.book.price }}</p>
+                                        <p class="mb-1">Total: ${{ item.total_price }}</p>
+                                        <button class="btn btn-sm btn-outline-danger remove-item" data-item-id="{{ item.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-md-4">
+                <div class="card shadow-sm" style="border: 1px solid #e5e5e5; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;">
+                    <div class="card-header" style="background-color: #5A2A2A; color: white;">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">${{ cart.subtotal }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Tax (10%)</span>
+                            <span id="cart-tax">${{ cart.tax }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total</strong>
+                            <strong id="cart-total">${{ cart.total }}</strong>
+                        </div>
+                        <a href="{% url 'books:checkout' %}" class="btn btn-primary w-100" style="background-color: #5A2A2A; border-color: #5A2A2A;">
+                            Proceed to Checkout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Add some books to your cart to continue shopping.</p>
+            <a href="{% url 'books:book_list' %}" class="btn btn-primary" style="background-color: #5A2A2A; border-color: #5A2A2A;">
+                Browse Books
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #5A2A2A; color: white;">
+                <h5 class="modal-title" id="deleteItemModalLabel">Confirm Removal</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this item from your cart?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Remove Item</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInputs = document.querySelectorAll('.update-quantity');
+    const decreaseButtons = document.querySelectorAll('.decrease-quantity');
+    const increaseButtons = document.querySelectorAll('.increase-quantity');
+    const removeButtons = document.querySelectorAll('.remove-item');
+
+    // Function to update quantity
+    async function updateQuantity(itemId, quantity) {
+        try {
+            const response = await fetch(`/api/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ quantity: quantity })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update the total price for this item
+                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                const totalPriceElement = itemElement.querySelector('.col-md-3.text-end p:nth-child(2)');
+                totalPriceElement.textContent = `Total: $${data.item_total}`;
+
+                // Update cart totals
+                document.querySelector('.card-body .d-flex:nth-child(1) span:last-child').textContent = `$${data.subtotal}`;
+                document.querySelector('.card-body .d-flex:nth-child(3) strong:last-child').textContent = `$${data.total}`;
+
+                // Update cart count in navbar
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                    cartCount.style.display = data.cart_count > 0 ? 'inline' : 'none';
+                }
+
+                showMessage('Cart updated successfully', 'success');
+            } else {
+                showMessage(data.message || 'Error updating cart', 'danger');
+            }
+        } catch (error) {
+            showMessage('Error updating cart', 'danger');
+        }
+    }
+
+    // Function to remove item
+    async function removeItem(itemId) {
+        try {
+            const response = await fetch(`/api/cart/remove/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Remove the item element
+                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                itemElement.remove();
+
+                // Update cart totals
+                document.querySelector('.card-body .d-flex:nth-child(1) span:last-child').textContent = `$${data.subtotal}`;
+                document.querySelector('.card-body .d-flex:nth-child(3) strong:last-child').textContent = `$${data.total}`;
+
+                // Update cart count in navbar
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                    cartCount.style.display = data.cart_count > 0 ? 'inline' : 'none';
+                }
+
+                // If cart is empty, reload the page to show empty cart message
+                if (data.cart_count === 0) {
+                    window.location.reload();
+                }
+
+                showMessage('Item removed from cart', 'success');
+            } else {
+                showMessage(data.message || 'Error removing item', 'danger');
+            }
+        } catch (error) {
+            showMessage('Error removing item', 'danger');
+        }
+    }
+
+    // Add event listeners for quantity inputs
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            const quantity = parseInt(this.value);
+            if (quantity > 0 && quantity <= parseInt(this.max)) {
+                updateQuantity(itemId, quantity);
+            } else {
+                this.value = this.defaultValue;
+                showMessage('Invalid quantity', 'danger');
+            }
+        });
+    });
+
+    // Add event listeners for decrease buttons
+    decreaseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.nextElementSibling;
+            const currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+                updateQuantity(input.dataset.itemId, currentValue - 1);
+            }
+        });
+    });
+
+    // Add event listeners for increase buttons
+    increaseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const currentValue = parseInt(input.value);
+            const maxValue = parseInt(input.max);
+            if (currentValue < maxValue) {
+                input.value = currentValue + 1;
+                updateQuantity(input.dataset.itemId, currentValue + 1);
+            } else {
+                showMessage('Maximum quantity reached', 'warning');
+            }
+        });
+    });
+
+    // Add event listeners for remove buttons
+    let itemToRemove = null;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteItemModal'));
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            itemToRemove = this.dataset.itemId;
+            deleteModal.show();
+        });
+    });
+    
+    // Handle the confirm delete button in the modal
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (itemToRemove) {
+            removeItem(itemToRemove);
+            deleteModal.hide();
+            itemToRemove = null;
+        }
+    });
+});
+</script>
+{% endblock %} 

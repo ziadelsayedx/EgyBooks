@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load library_tags %}
+
+{% block title %}Return Book - EgyBooks{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Return Book</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0 me-3">
+                            {% if borrowed.book.cover_image %}
+                                <img src="{{ borrowed.book.cover_image.url }}" alt="{{ borrowed.book.title }}" class="img-thumbnail" style="width: 120px;">
+                            {% else %}
+                                <img src="{% static 'images/no-cover.jpg' %}" alt="No Cover" class="img-thumbnail" style="width: 120px;">
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h4>{{ borrowed.book.title }}</h4>
+                            <p class="text-muted">by {{ borrowed.book.author.name }}</p>
+                            <p><strong>Currently borrowed:</strong> {{ borrowed.quantity }} copies</p>
+                            <p><strong>Due date:</strong> {{ borrowed.due_date|date:"M d, Y" }}</p>
+                            {% if borrowed.due_date < now %}
+                                <p class="text-danger">This book is overdue!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'library:return_book' borrowed.id %}">
+                        {% csrf_token %}
+                        
+                        {% if borrowed.quantity > 1 %}
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">How many copies would you like to return?</label>
+                                <select name="quantity" id="quantity" class="form-select">
+                                    {% for i in borrowed.quantity|get_range %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% else %}
+                            <input type="hidden" name="quantity" value="1">
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Return Book</button>
+                            <a href="{% url 'books:library' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
