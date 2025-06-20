@@ -1,6 +1,4 @@
-# EgyBooks - Digital Library Management System (Django)
-
-![EgyBooks Logo](static/images/logo.png) 
+# EgyBooks - Online Web Library
 
 EgyBooks is a comprehensive web application for managing a digital library, built with Django backend. The application allows users to browse, purchase, borrow, and manage books with server-side data management.
 
@@ -12,6 +10,24 @@ EgyBooks is a comprehensive web application for managing a digital library, buil
 - **User Library**: Track owned and borrowed books with reading status
 - **Responsive Design**: Works on all device sizes
 - **Search & Filter**: Find books by title, author, or genre
+
+## Usage
+
+1. **As a regular user**:
+   - Browse books in the library
+   - Search for specific titles or authors
+   - Add books to your cart
+   - Purchase or borrow books
+   - Manage your personal library and reading status
+
+2. **As an admin**:
+   - Access the admin panel at `/admin`
+   - Manage all books, users, and transactions
+   - Add/edit/delete books and categories
+
+## Home Page
+
+![Home Page](media/Screenshots//home.png)
 
 ## Installation
 
@@ -67,27 +83,4 @@ EgyBooks is a comprehensive web application for managing a digital library, buil
    ```
    http://127.0.0.1:8000/
    ```
-
-
-## Usage
-
-1. **As a regular user**:
-   - Browse books in the library
-   - Search for specific titles or authors
-   - Add books to your cart
-   - Purchase or borrow books
-   - Manage your personal library and reading status
-
-2. **As an admin**:
-   - Access the admin panel at `/admin`
-   - Manage all books, users, and transactions
-   - Add/edit/delete books and categories
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and create a pull request with your changes.
-
-## Screenshots
-
-![Home Page](screenshots/home.png)
 
