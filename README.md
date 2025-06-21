@@ -32,7 +32,7 @@ EgyBooks is a comprehensive web application for managing a digital library, buil
 ## Installation
 
 ### Prerequisites
-- Python 3.6 or later
+- Python 3.1 or later
 - pip package manager
 
 ### Setup Instructions
